@@ -344,7 +344,7 @@ def build_echo_planet_song(chart: dict) -> tuple[array.array, array.array]:
         add_note_stereo(left, right, c_sec, 0.24, space_bell(midi_to_hz(c_midi + 12), 0.22), pan=-0.10)
         add_note_stereo(left, right, c_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=-0.08)
 
-    # Player Response Turn: play the exact matching backing guide melody + rhythmic punch on every event beat!
+    # Player Response Turn: play the exact matching backing guide bell + rhythmic punch on every event beat!
     for ev in chart.get("events", []):
         ev_beat = float(ev["beat"])
         ev_sec = ev_beat * spb
@@ -352,10 +352,10 @@ def build_echo_planet_song(chart: dict) -> tuple[array.array, array.array]:
         tone = call_tone_map.get(matching_call_key, 1)
         scale_midi = [65, 69, 72, 74, 77, 79, 81]
         e_midi = scale_midi[max(0, min(len(scale_midi) - 1, tone))]
-        # Crisp backing guide synth, bell, and tight snare/bass punch on the exact response beat!
-        add_note_stereo(left, right, ev_sec, 0.30, alien_vocal_call(tone, is_echo=True), pan=0.10)
-        add_note_stereo(left, right, ev_sec, 0.24, space_bell(midi_to_hz(e_midi + 12), 0.24), pan=0.10)
-        add_note_stereo(left, right, ev_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=0.08)
+        # Crisp backing guide bell, marimba, and tight snare punch on the exact response beat!
+        add_note_stereo(left, right, ev_sec, 0.26, kitchen_marimba(midi_to_hz(e_midi), 0.24), pan=0.08)
+        add_note_stereo(left, right, ev_sec, 0.24, space_bell(midi_to_hz(e_midi + 12), 0.24), pan=0.08)
+        add_note_stereo(left, right, ev_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=0.06)
 
     return left, right
 
@@ -495,6 +495,93 @@ def sfx_rk_miss(t: float, _d: float) -> float:
     return noise + thud
 
 
+def sfx_ui_focus(t: float, _d: float) -> float:
+    # Crisp tactile marimba/woodblock focus pop (C6 + harmonic overtone)
+    return (
+        math.sin(TAU * 1046.50 * t) * 0.72
+        + math.sin(TAU * 2093.00 * t) * math.exp(-t * 75.0) * 0.28
+    ) * math.exp(-t * 42.0) * 0.42
+
+
+def sfx_ui_click(t: float, _d: float) -> float:
+    # Cheerful two-note major-third confirmation chime (C6 -> E6 + bell sparkle)
+    if t < 0.045:
+        return (
+            math.sin(TAU * 1046.50 * t) * 0.65
+            + math.sin(TAU * 2093.00 * t) * 0.25
+        ) * math.exp(-t * 28.0) * 0.48
+    t2 = t - 0.045
+    return (
+        math.sin(TAU * 1318.51 * t2) * 0.62
+        + math.sin(TAU * 1975.53 * t2) * 0.28
+        + math.sin(TAU * 2637.02 * t2) * 0.20
+    ) * math.exp(-t2 * 22.0) * 0.52
+
+
+def sfx_ui_eval(t: float, _d: float) -> float:
+    # Snare drumroll (0.0..0.42s) + spotlight cymbal/chord hit at 0.42s for Black Screen -> Evaluation reveal!
+    if t < 0.42:
+        roll_env = 0.45 + 0.55 * (t / 0.42)
+        pulse = 0.65 + 0.35 * abs(math.sin(TAU * 18.0 * t))
+        return prng_noise(int(t * SAMPLE_RATE)) * roll_env * pulse * 0.28 + math.sin(TAU * 195.0 * t) * 0.12
+    t2 = t - 0.42
+    cymbal = prng_noise(int(t2 * SAMPLE_RATE)) * math.exp(-t2 * 9.5) * 0.22
+    chord = (
+        math.sin(TAU * 523.25 * t2) * 0.25
+        + math.sin(TAU * 659.25 * t2) * 0.22
+        + math.sin(TAU * 783.99 * t2) * 0.20
+        + math.sin(TAU * 1046.50 * t2) * 0.18
+    ) * math.exp(-t2 * 5.5)
+    return cymbal + chord
+
+
+def build_menu_bgm(kind: str) -> tuple[array.array, array.array, float]:
+    # Seamless 16-beat (4-bar) BGM loops for Title, Stage Select, and Results screens!
+    specs = {
+        "title": (120.0, [60, 65, 67, 60], [72, 76, 79, 84, 81, 79, 76, 74, 72, 76, 79, 81, 84, 79, 76, 72]),
+        "select": (112.0, [53, 57, 58, 60], [69, 72, 74, 77, 76, 72, 69, 67, 70, 74, 77, 81, 79, 76, 72, 69]),
+        "results_superb": (124.0, [60, 64, 65, 67], [76, 79, 84, 88, 86, 84, 79, 76, 77, 81, 84, 86, 84, 79, 81, 84]),
+        "results_ok": (106.0, [55, 52, 53, 55], [71, 74, 76, 79, 76, 74, 71, 67, 69, 72, 76, 74, 71, 69, 67, 71]),
+        "results_try_again": (96.0, [57, 53, 55, 52], [69, 72, 71, 69, 65, 69, 67, 64, 69, 72, 74, 72, 71, 69, 67, 64]),
+    }
+    bpm, bass_roots, melody_notes = specs[kind]
+    spb = 60.0 / bpm
+    total_beats = 16
+    dur = total_beats * spb
+    n = int(round(dur * SAMPLE_RATE))
+    left = array.array("f", [0.0] * n)
+    right = array.array("f", [0.0] * n)
+
+    for b in range(total_beats):
+        t0 = b * spb
+        bar = b // 4
+        beat_in_bar = b % 4
+        root = bass_roots[bar % len(bass_roots)]
+        mel = melody_notes[b % len(melody_notes)]
+
+        if kind != "results_try_again":
+            if beat_in_bar in (0, 2):
+                add_note_stereo(left, right, t0, 0.20, kick_drum, pan=0.0)
+            else:
+                add_note_stereo(left, right, t0, 0.15, lambda t, d: snare_drum(t, d, tight=True), pan=0.04)
+            add_note_stereo(left, right, t0 + 0.5 * spb, 0.07, lambda t, d: hihat(t, d, False), pan=0.18)
+
+        add_note_stereo(left, right, t0, 0.55 * spb, slap_bass(midi_to_hz(root - 12), 0.52), pan=-0.06)
+        if beat_in_bar == 0:
+            chord_hz = [midi_to_hz(root), midi_to_hz(root + 4), midi_to_hz(root + 7), midi_to_hz(root + 11)]
+            add_note_stereo(left, right, t0, 3.6 * spb, epiano_chord(chord_hz, 0.11), pan=-0.12)
+
+        if kind in ("title", "results_superb"):
+            add_note_stereo(left, right, t0, 0.42 * spb, brass_lead(midi_to_hz(mel), 0.14), pan=0.14)
+            add_note_stereo(left, right, t0, 0.35 * spb, kitchen_marimba(midi_to_hz(mel + 12), 0.12), pan=-0.14)
+        else:
+            add_note_stereo(left, right, t0, 0.45 * spb, kitchen_marimba(midi_to_hz(mel), 0.15), pan=0.12)
+            if b % 2 == 0:
+                add_note_stereo(left, right, t0, 0.40 * spb, space_bell(midi_to_hz(mel + 12), 0.10), pan=-0.15)
+
+    return left, right, round(dur, 3)
+
+
 def build_result_fanfare(superb: bool) -> tuple[array.array, array.array]:
     dur = 2.4
     n = int(dur * SAMPLE_RATE)
@@ -541,6 +628,18 @@ def main() -> None:
             "license": "CC0-1.0 / Original First-Party Procedural Composition (tools/generate_audio_assets.py)",
         })
 
+    for bgm_kind in ["title", "select", "results_superb", "results_ok", "results_try_again"]:
+        l_ch, r_ch, b_dur = build_menu_bgm(bgm_kind)
+        fname = f"bgm_{bgm_kind}.wav"
+        write_wav_stereo(AUDIO_DIR / fname, l_ch, r_ch)
+        manifest_records.append({
+            "file": f"res://assets/audio/{fname}",
+            "sample_rate": SAMPLE_RATE,
+            "channels": 2,
+            "duration_sec": b_dur,
+            "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)",
+        })
+
     sfx_specs = [
         ("beat_factory_perfect.wav", 0.26, sfx_bf_perfect, 0.0),
         ("beat_factory_good.wav", 0.22, sfx_bf_good, 0.0),
@@ -552,6 +651,9 @@ def main() -> None:
         ("rhythm_kitchen_perfect_right.wav", 0.24, sfx_rk_perfect_right, 0.25),
         ("rhythm_kitchen_good.wav", 0.22, sfx_rk_good, 0.0),
         ("rhythm_kitchen_miss.wav", 0.26, sfx_rk_miss, 0.0),
+        ("ui_focus.wav", 0.09, sfx_ui_focus, 0.0),
+        ("ui_click.wav", 0.16, sfx_ui_click, 0.0),
+        ("ui_eval.wav", 0.95, sfx_ui_eval, 0.0),
     ]
     for fname, dur, fn, pan in sfx_specs:
         l_ch, r_ch = build_sfx(dur, fn, pan)

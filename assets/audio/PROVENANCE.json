@@ -30,6 +30,41 @@
       "license": "CC0-1.0 / Original First-Party Procedural Composition (tools/generate_audio_assets.py)"
     },
     {
+      "file": "res://assets/audio/bgm_title.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 8.0,
+      "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/bgm_select.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 8.571,
+      "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/bgm_results_superb.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 7.742,
+      "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/bgm_results_ok.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 9.057,
+      "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/bgm_results_try_again.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 10.0,
+      "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
+    },
+    {
       "file": "res://assets/audio/beat_factory_perfect.wav",
       "sample_rate": 44100,
       "channels": 2,
@@ -97,6 +132,27 @@
       "sample_rate": 44100,
       "channels": 2,
       "duration_sec": 0.26,
+      "license": "CC0-1.0 / Original First-Party SFX (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/ui_focus.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 0.09,
+      "license": "CC0-1.0 / Original First-Party SFX (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/ui_click.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 0.16,
+      "license": "CC0-1.0 / Original First-Party SFX (tools/generate_audio_assets.py)"
+    },
+    {
+      "file": "res://assets/audio/ui_eval.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "duration_sec": 0.95,
       "license": "CC0-1.0 / Original First-Party SFX (tools/generate_audio_assets.py)"
     },
     {

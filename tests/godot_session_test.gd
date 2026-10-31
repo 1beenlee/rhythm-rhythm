@@ -71,6 +71,21 @@ func _run_tests() -> void:
     pause_label.free()
     pause_status.free()
 
+    # Regression: when audio stops at track completion, session must finish (not enter Pause state!)
+    var finished_ok := [false]
+    s.finished.connect(func(_summary: Dictionary): finished_ok[0] = true)
+    s.manifest = {"id": "echo_planet"}
+    s.chart = {"bpm": 120.0, "duration": 36.0, "events": [{"beat": 4.0, "lane": "tap"}]}
+    s.states = [true]
+    s.event_grades = ["Perfect"]
+    s.paused = false
+    s.ending = false
+    s.active = true
+    s.max_song_time = 35.6
+    s.audio.stop()
+    s._process(0.016)
+    _check(finished_ok[0] and s.ending and not s.paused, "track completion finishes session instead of pausing")
+
     s.stop_session()
     s.free()
     if failures > 0:
