@@ -11,7 +11,9 @@ func _initialize() -> void:
         "res://core/game_registry.gd",
         "res://core/game_visual.gd",
         "res://core/save_data.gd",
-        "res://core/tokens.gd"
+        "res://core/tokens.gd",
+        "res://core/cartoon_draw.gd",
+        "res://core/stage_ui_art.gd"
     ]
     for path in required_scripts:
         if ResourceLoader.load(path) == null:
@@ -46,5 +48,16 @@ func _initialize() -> void:
             quit(1)
             return
         visual.free()
-    print("RhythmAppSmoke: PASS, 3 registered game scenes")
+        var chart: Dictionary = pack["_chart"]
+        var song := RhythmSynth.make_song(str(pack["id"]), float(chart["bpm"]), float(chart["duration"]), chart.get("calls", []))
+        if song == null or song.mix_rate != 44100 or not song.stereo or song.data.size() < 100000:
+            push_error("Invalid 44.1kHz stereo soundtrack for: " + str(pack["id"]))
+            quit(1)
+            return
+        var hit_sfx := RhythmSynth.make_world_hit(str(pack["id"]), "Perfect", "left")
+        if hit_sfx == null or hit_sfx.mix_rate != 44100 or not hit_sfx.stereo:
+            push_error("Invalid 44.1kHz stereo world SFX for: " + str(pack["id"]))
+            quit(1)
+            return
+    print("RhythmAppSmoke: PASS, 3 registered game scenes + 44.1kHz stereo audio verified")
     quit(0)
