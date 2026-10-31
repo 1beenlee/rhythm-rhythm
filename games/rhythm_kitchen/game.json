@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "rhythm_kitchen",
+  "name": "Rhythm Kitchen",
+  "description": "Catch left and right ingredients on the beat.",
+  "scene": "res://games/rhythm_kitchen/visual.tscn",
+  "chart": "res://games/rhythm_kitchen/chart.json",
+  "controls": "left/right",
+  "color": "#ff786f"
+}

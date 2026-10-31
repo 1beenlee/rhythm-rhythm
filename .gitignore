@@ -1,0 +1,11 @@
+.godot/
+.import/
+*.tmp
+__pycache__/
+*.pyc
+project.local.yaml
+build/
+dist/
+.env
+.env.*
+!.env.example

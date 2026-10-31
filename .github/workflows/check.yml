@@ -1,0 +1,58 @@
+name: Godot MVP validation
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate charts and scaffold test
+        run: |
+          python tools/validate.py
+          python -m unittest discover -s tests -v
+      - name: Fetch pinned Godot editor and templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          curl --fail --location --retry 2 "$BASE/Godot_v4.7.2-stable_linux.x86_64.zip" -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          echo "/tmp/godot-bin" >> "$GITHUB_PATH"
+          curl --fail --location --retry 2 "$BASE/Godot_v4.7.2-stable_export_templates.tpz" -o /tmp/templates.tpz
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -q /tmp/templates.tpz 'templates/*' -d /tmp/tpl
+          cp /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
+      - name: Godot import, parse and pure timing test
+        run: |
+          GODOT=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          chmod +x "$GODOT"
+          "$GODOT" --headless --path . --import
+          "$GODOT" --headless --path . --script tests/godot_judge_test.gd
+          "$GODOT" --headless --path . --quit-after 2
+      - name: Export Web PWA and Windows
+        run: |
+          GODOT=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          mkdir -p build/web build/windows
+          "$GODOT" --headless --path . --export-release 'Web' build/web/index.html
+          "$GODOT" --headless --path . --export-release 'Windows Desktop' build/windows/RhythmRhythm.exe
+          test -s build/web/index.html
+          test -s build/windows/RhythmRhythm.exe
+          find build/web -maxdepth 1 -type f -printf '%f\n'
+      - name: Pack offline build artifacts (not release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: rhythm-rhythm-mvp-test-builds
+          path: |
+            build/web/
+            build/windows/
+          retention-days: 2

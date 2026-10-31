@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "beat_factory",
+  "name": "Beat Factory",
+  "description": "A one-button machine. Stamp every package precisely.",
+  "scene": "res://games/beat_factory/visual.tscn",
+  "chart": "res://games/beat_factory/chart.json",
+  "controls": "tap",
+  "color": "#7568e9"
+}

@@ -1,0 +1,12 @@
+# Project-scoped subset of verified CCGS v1.2.0 convention; no hooks are installed.
+schema_version: 1
+framework:
+  version: 1.2.0
+  source_commit: 05ad7c8a5b8aa2aa86bbd3439ae7cf7295cac418
+engine:
+  name: godot
+  version: 4.7.2
+  language: GDScript
+modes:
+  rigor: minimal
+  automation: guided

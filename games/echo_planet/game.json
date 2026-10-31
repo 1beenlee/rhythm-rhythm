@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "echo_planet",
+  "name": "Echo Planet",
+  "description": "Hear the creature, remember, and answer its rhythm.",
+  "scene": "res://games/echo_planet/visual.tscn",
+  "chart": "res://games/echo_planet/chart.json",
+  "controls": "tap",
+  "color": "#596bdc"
+}
