@@ -204,6 +204,9 @@ func _play() -> void:
     _button("EXIT TO GAMES", _exit_play, RhythmTokens.MUTED)
 
 func _on_countdown(number: int) -> void:
+    # Focus changes can deliver a queued countdown signal after Pause updates the UI.
+    if is_instance_valid(session) and session.paused:
+        return
     if is_instance_valid(countdown_text):
         countdown_text.text = "PLAY" if number < 0 else ("GO!" if number == 0 else str(number))
     if number < 0 and is_instance_valid(status):
