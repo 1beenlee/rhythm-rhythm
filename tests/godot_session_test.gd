@@ -21,6 +21,10 @@ func _reset_event(s: RhythmSession) -> void:
     s.score = 0
 
 func _initialize() -> void:
+    # SceneTree._initialize fires before the root is fully inside the active tree.
+    call_deferred("_run_tests")
+
+func _run_tests() -> void:
     var s := RhythmSession.new()
     root.add_child(s)
     _reset_event(s)
@@ -39,7 +43,9 @@ func _initialize() -> void:
     s.countdown_start_usec = Time.get_ticks_usec() - 1500000
     s.pause_session()
     var before := float(s.countdown_pause_usec - s.countdown_start_usec) / 1000000.0
-    s.countdown_pause_usec -= 800000  # simulate 0.8 s of paused wall-clock time
+    # Move both timestamps back as though 0.8 s passed with the session paused.
+    s.countdown_start_usec -= 800000
+    s.countdown_pause_usec -= 800000
     s.resume_session()
     var after := float(Time.get_ticks_usec() - s.countdown_start_usec) / 1000000.0
     _check(absf(before - after) < 0.05, "resume preserves remaining countdown")
