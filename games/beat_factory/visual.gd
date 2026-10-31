@@ -11,5 +11,6 @@ func _draw() -> void:
     draw_rect(Rect2(Vector2(center.x - 72, center.y + 4 + pound), Vector2(144, 27)), RhythmTokens.CORAL)
     draw_circle(Vector2(center.x, center.y + 72), 19, RhythmTokens.INK)
     draw_circle(Vector2(center.x, center.y + 72), 14, RhythmTokens.YELLOW)
-    draw_string(ThemeDB.fallback_font, Vector2(20, 36), "BEAT FACTORY // STAMP ON THE BEAT", HORIZONTAL_ALIGNMENT_LEFT, -1, 19, RhythmTokens.INK)
+    var title := "BEAT FACTORY" if size.x < 400.0 else "BEAT FACTORY // STAMP ON THE BEAT"
+    draw_string(ThemeDB.fallback_font, Vector2(20, 36), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 19, RhythmTokens.INK)
     paint_feedback()
