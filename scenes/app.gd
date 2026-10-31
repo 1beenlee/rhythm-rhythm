@@ -16,9 +16,18 @@ var page_name := "home"
 var latest_summary: Dictionary = {}
 
 func _ready() -> void:
+    get_window().size_changed.connect(_adapt_viewport)
+    _adapt_viewport()
     games = GameRegistry.discover()
     profile = RhythmSave.settings()
     _home()
+
+func _adapt_viewport() -> void:
+    # A portrait-sized logical canvas keeps text and buttons legible on phones.
+    var screen := get_window().size
+    var base := Vector2i(420, 800) if screen.x < screen.y else Vector2i(960, 640)
+    if get_window().content_scale_size != base:
+        get_window().content_scale_size = base
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_instance_valid(session):
@@ -53,7 +62,11 @@ func _process(_delta: float) -> void:
     if is_instance_valid(debug_label) and debug_open:
         debug_label.text = "DEBUG | audio %.3fs | mix %.3fs | latency %.3fs | input %dms | output %dms" % [session.audio.get_playback_position(), AudioServer.get_time_since_last_mix(), AudioServer.get_output_latency(), int(profile["input_ms"]), int(profile["output_ms"])]
     if is_instance_valid(hud):
-        hud.text = "SCORE %06d     COMBO %d     BEAT %.1f" % [session.score, session.combo, session.song_time * float(session.chart["bpm"]) / 60.0]
+        var beat := session.song_time * float(session.chart["bpm"]) / 60.0
+        if get_window().size.x < get_window().size.y:
+            hud.text = "SCORE %06d    COMBO %d\nBEAT %.1f" % [session.score, session.combo, beat]
+        else:
+            hud.text = "SCORE %06d     COMBO %d     BEAT %.1f" % [session.score, session.combo, beat]
 
 func _reset_page(name: String) -> void:
     page_name = name
@@ -102,7 +115,7 @@ func _spacer() -> void:
     body.add_child(spacer)
 
 func _heading(title: String, subtitle: String) -> void:
-    _text("●  RHYTHM RHYTHM", 15, RhythmTokens.LAVENDER)
+    _text("RHYTHM RHYTHM", 15, RhythmTokens.LAVENDER)
     _text(title, 37)
     _text(subtitle, 17, RhythmTokens.MUTED)
 
@@ -110,7 +123,7 @@ func _home() -> void:
     _dispose_session()
     _reset_page("home")
     _spacer()
-    _heading("RHYTHM²", "Tiny games. Big grooves.")
+    _heading("RHYTHM RHYTHM", "Tiny games. Big grooves.")
     _spacer()
     _button("PLAY THE COLLECTION", _select_games)
     _button("SETTINGS & LATENCY", _settings_page, RhythmTokens.AQUA)
@@ -125,10 +138,10 @@ func _select_games() -> void:
     if games.is_empty():
         _text("No valid game packs found. Run the manifest validator.")
     for game in games:
-        _button(str(game["name"]) + "  •  BEST %d" % RhythmSave.best(str(game["id"])), _guide.bind(game), Color(str(game["color"])))
+        _button(str(game["name"]) + "  |  BEST %d" % RhythmSave.best(str(game["id"])), _guide.bind(game), Color(str(game["color"])))
         _text(str(game["description"]), 15, RhythmTokens.MUTED)
     _spacer()
-    _button("← BACK", _home, RhythmTokens.INK)
+    _button("< BACK", _home, RhythmTokens.INK)
 
 func _guide(game: Dictionary) -> void:
     selected = game
@@ -142,10 +155,10 @@ func _guide(game: Dictionary) -> void:
     elif str(game["id"]) == "rhythm_kitchen":
         instruction = "Press A / L or tap LEFT / RIGHT to catch the correct ingredient."
     _text(instruction, 21)
-    _text("Perfect ±75ms   Good ±160ms   Miss after ±210ms", 15, RhythmTokens.MUTED)
+    _text("Perfect +/-75ms   Good +/-160ms   Miss after +/-210ms", 15, RhythmTokens.MUTED)
     _spacer()
     _button("LET'S PLAY", _play)
-    _button("← GAMES", _select_games, RhythmTokens.INK)
+    _button("< GAMES", _select_games, RhythmTokens.INK)
 
 func _play() -> void:
     _dispose_session()
@@ -155,7 +168,7 @@ func _play() -> void:
     session.configure(selected, profile)
     session.finished.connect(_results)
     session.countdown.connect(_on_countdown)
-    hud = _text("SCORE 000000     COMBO 0     BEAT 0.0", 21)
+    hud = _text("SCORE 000000     COMBO 0     BEAT 0.0", 18)
     status = _text("READY?", 17, RhythmTokens.LAVENDER)
     var frame := PanelContainer.new()
     frame.add_theme_stylebox_override("panel", RhythmTokens.panel(RhythmTokens.WHITE))
@@ -179,20 +192,22 @@ func _play() -> void:
         body.add_child(lane_row)
         for lane in ["left", "right"]:
             var key := Button.new()
-            key.text = "◀ LEFT (A)" if lane == "left" else "RIGHT (L) ▶"
+            key.text = "LEFT (A)" if lane == "left" else "RIGHT (L)"
             RhythmTokens.style_button(key, RhythmTokens.CORAL if lane == "left" else RhythmTokens.AQUA)
             key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
             key.pressed.connect(_submit_touch.bind(lane))
             lane_row.add_child(key)
     else:
-        _button("●  TAP THE BEAT  (SPACE)", _submit_touch.bind("tap"), RhythmTokens.CORAL)
-    _button("Ⅱ  PAUSE / RESUME", _toggle_pause, RhythmTokens.INK)
-    _button("↻  RESTART TRACK", _play, RhythmTokens.MUTED)
-    _button("×  EXIT TO GAMES", _exit_play, RhythmTokens.MUTED)
+        _button("TAP THE BEAT  (SPACE)", _submit_touch.bind("tap"), RhythmTokens.CORAL)
+    _button("II  PAUSE / RESUME", _toggle_pause, RhythmTokens.INK)
+    _button("RESTART TRACK", _play, RhythmTokens.MUTED)
+    _button("EXIT TO GAMES", _exit_play, RhythmTokens.MUTED)
 
 func _on_countdown(number: int) -> void:
     if is_instance_valid(countdown_text):
-        countdown_text.text = "GO!" if number == 0 else str(number)
+        countdown_text.text = "PLAY" if number < 0 else ("GO!" if number == 0 else str(number))
+    if number < 0 and is_instance_valid(status):
+        status.text = "FOLLOW THE SOUND"
 
 func _submit_touch(lane: String) -> void:
     if is_instance_valid(session):
@@ -209,12 +224,15 @@ func _toggle_pause() -> void:
 
 func _update_pause_hint() -> void:
     if is_instance_valid(status) and is_instance_valid(session):
-        status.text = "PAUSED — press resume" if session.paused else "FOLLOW THE SOUND"
+        status.text = "PAUSED - TAP RESUME OR PRESS P" if session.paused else ("FOLLOW THE SOUND" if session.active else "GET READY")
     if is_instance_valid(countdown_text) and is_instance_valid(session):
         if session.paused:
             countdown_text.text = "PAUSED"
         elif session.active:
-            countdown_text.text = "♪"
+            countdown_text.text = "PLAY"
+        else:
+            var elapsed := float(Time.get_ticks_usec() - session.countdown_start_usec) / 1000000.0
+            countdown_text.text = str(maxi(0, 3 - int(elapsed)))
 
 func _exit_play() -> void:
     _dispose_session()
@@ -230,16 +248,16 @@ func _results(summary: Dictionary) -> void:
     _text("%06d" % int(summary["score"]), 52, RhythmTokens.LAVENDER)
     _text("BEST %06d    MAX COMBO %d" % [summary["best"], summary["max_combo"]], 20)
     var c: Dictionary = summary["counts"]
-    _text("PERFECT %d  •  GOOD %d  •  MISS %d" % [c["Perfect"], c["Good"], c["Miss"]], 18)
+    _text("PERFECT %d  |  GOOD %d  |  MISS %d" % [c["Perfect"], c["Good"], c["Miss"]], 18)
     _spacer()
-    _button("↻  RETRY", _play, RhythmTokens.AQUA)
+    _button("RETRY", _play, RhythmTokens.AQUA)
     _button("ALL GAMES", _select_games, RhythmTokens.INK)
 
 func _settings_page() -> void:
     _reset_page("settings")
     _heading("FIND YOUR GROOVE", "Offsets are stored only on this device")
     _spacer()
-    _slider("Input offset (ms)  — later tap = positive", "input_ms", -250, 250, 5)
+    _slider("Input offset (ms)  - later tap = positive", "input_ms", -250, 250, 5)
     _slider("Extra output offset (ms)", "output_ms", -250, 250, 5)
     _slider("Music & SFX volume", "volume", 0, 100, 5)
     var toggle := CheckButton.new()
@@ -281,7 +299,7 @@ func _offline_page() -> void:
     _text("WINDOWS: Use the standalone exported EXE offline. Browser caches can be cleared or evicted by the OS.", 19)
     _text("If the web app fails offline, reconnect once to refresh its cache. Your local save may also be cleared when site data is removed.", 16, RhythmTokens.MUTED)
     _spacer()
-    _button("← HOME", _home, RhythmTokens.INK)
+    _button("< HOME", _home, RhythmTokens.INK)
 
 func _dispose_session() -> void:
     if is_instance_valid(session):

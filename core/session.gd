@@ -16,6 +16,7 @@ var active := false
 var paused := false
 var song_time := 0.0
 var countdown_start_usec := 0
+var countdown_pause_usec := 0
 var last_count := 4
 var states: Array[bool] = []
 var audio := AudioStreamPlayer.new()
@@ -55,6 +56,7 @@ func restart() -> void:
     song_time = 0.0
     last_count = 4
     countdown_start_usec = Time.get_ticks_usec()
+    countdown_pause_usec = 0
     set_process(true)
 
 func _process(_delta: float) -> void:
@@ -69,6 +71,7 @@ func _process(_delta: float) -> void:
         if elapsed >= 3.0:
             active = true
             audio.play()
+            countdown.emit(-1)  # UI leaves READY/GO when the actual track starts.
         return
     if not audio.playing:
         # Do not silently advance on background-tab audio suspension.
@@ -85,23 +88,40 @@ func _process(_delta: float) -> void:
 func submit(lane: String) -> void:
     if not active or paused or ending:
         return
-    # Sample the audio clock at input arrival; do not reuse last render-frame time.
+    # Always sample the audio clock on input arrival, never the render-frame delta.
     song_time = _read_song_time()
+    _submit_at_time(lane, song_time)
+
+func _submit_at_time(lane: String, at_seconds: float) -> void:
+    # Separate deterministic input matching from hardware clock sampling for regression tests.
     var best_index := -1
     var best_delta := INF
+    var wrong_index := -1
+    var wrong_delta := INF
     var events: Array = chart["events"]
     for i in events.size():
-        if states[i] or str(events[i]["lane"]) != lane:
+        if states[i]:
             continue
-        var delta := absf(song_time - _event_time(events[i]))
-        if delta <= RhythmJudge.MISS_WINDOW and delta < best_delta:
-            best_delta = delta
-            best_index = i
-    if best_index < 0:
+        var delta := absf(at_seconds - _event_time(events[i]))
+        if delta > RhythmJudge.MISS_WINDOW:
+            continue
+        if str(events[i]["lane"]) == lane:
+            if delta < best_delta:
+                best_delta = delta
+                best_index = i
+        elif delta < wrong_delta:
+            wrong_delta = delta
+            wrong_index = i
+    if best_index >= 0 and (wrong_index < 0 or best_delta <= wrong_delta):
+        _apply(best_index, RhythmJudge.grade(best_delta))
+    elif wrong_index >= 0:
+        # A wrong-lane press on a visible note consumes that note as a Miss.
+        _apply(wrong_index, "Miss")
+    else:
+        # Ghost taps break combo but cannot inflate event-based Miss totals.
+        combo = 0
         _sound("Miss")
         feedback.emit("Outside", lane, combo)
-        return
-    _apply(best_index, RhythmJudge.grade(best_delta))
 
 func _apply(index: int, grade_name: String) -> void:
     states[index] = true
@@ -131,6 +151,8 @@ func pause_session() -> void:
     paused = true
     if active:
         audio.stream_paused = true
+    else:
+        countdown_pause_usec = Time.get_ticks_usec()
 
 func resume_session() -> void:
     if not paused:
@@ -139,8 +161,9 @@ func resume_session() -> void:
     if active:
         audio.stream_paused = false
     else:
-        countdown_start_usec = Time.get_ticks_usec()
-        last_count = 4
+        # Keep the remaining countdown, excluding time spent paused.
+        countdown_start_usec += Time.get_ticks_usec() - countdown_pause_usec
+        countdown_pause_usec = 0
 
 func _finish() -> void:
     ending = true

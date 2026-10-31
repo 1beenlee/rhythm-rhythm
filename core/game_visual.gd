@@ -12,6 +12,7 @@ func configure(game_chart: Dictionary, live_session: RhythmSession, minimal_moti
     chart = game_chart
     session = live_session
     reduced_motion = minimal_motion
+    clip_contents = true  # Keep game art inside its playfield, below the HUD.
     session.feedback.connect(show_feedback)
     set_process(true)
 
@@ -36,7 +37,7 @@ func paint_feedback() -> void:
     var alpha := 0.65 if reduced_motion else flash / 0.30
     draw_rect(Rect2(Vector2.ZERO, size), Color(RhythmTokens.grade_color(last_grade), alpha * 0.16))
     var font := ThemeDB.fallback_font
-    draw_string(font, Vector2(size.x * 0.5 - 76, size.y * 0.20), last_grade.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 29, RhythmTokens.grade_color(last_grade))
+    draw_string(font, Vector2(0, size.y * 0.83), last_grade.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, int(size.x), 29, RhythmTokens.grade_color(last_grade))
 
 func paint_event_bar(lane: String, y: float, center_x: float, scale_x: float) -> void:
     var current := current_beat()

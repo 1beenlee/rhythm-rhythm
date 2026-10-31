@@ -40,13 +40,15 @@ jobs:
           chmod +x "$GODOT"
           "$GODOT" --headless --path . --import 2>&1 | tee /tmp/rhythm-import.log
           "$GODOT" --headless --path . --script tests/godot_judge_test.gd 2>&1 | tee /tmp/rhythm-judge.log
+          "$GODOT" --headless --path . --script tests/godot_session_test.gd 2>&1 | tee /tmp/rhythm-session.log
           "$GODOT" --headless --path . --script tests/godot_smoke_test.gd 2>&1 | tee /tmp/rhythm-smoke.log
           "$GODOT" --headless --path . --quit-after 2 2>&1 | tee /tmp/rhythm-runtime.log
-          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/rhythm-{import,judge,smoke,runtime}.log; then
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/rhythm-{import,judge,session,smoke,runtime}.log; then
             echo 'Godot reported a GDScript parse/load error' >&2
             exit 1
           fi
           grep -q 'RhythmJudge: PASS' /tmp/rhythm-judge.log
+          grep -q 'RhythmSessionRegression: PASS' /tmp/rhythm-session.log
           grep -q 'RhythmAppSmoke: PASS' /tmp/rhythm-smoke.log
       - name: Export Web PWA and Windows
         run: |
@@ -56,6 +58,8 @@ jobs:
           "$GODOT" --headless --path . --export-release 'Windows Desktop' build/windows/RhythmRhythm.exe
           test -s build/web/index.html
           test -s build/windows/RhythmRhythm.exe
+          python tools/check_web_export.py build/web
+          node tests/web_bootstrap_test.cjs build/web/index.html
           find build/web -maxdepth 1 -type f -printf '%f\n'
       - name: Pack offline build artifacts (not release)
         uses: actions/upload-artifact@v4
