@@ -56,7 +56,7 @@ func _run_tests() -> void:
     s._process(0.016)
     _check(s.active and last_countdown == -1, "song start clears READY/GO countdown")
     # A queued countdown event must not overwrite the visible PAUSED message.
-    var app := load("res://scenes/app.gd").new()
+    var app = load("res://scenes/app.gd").new()
     var pause_label := Label.new()
     var pause_status := Label.new()
     app.set("session", s)
