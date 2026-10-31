@@ -32,13 +32,22 @@ jobs:
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
           unzip -q /tmp/templates.tpz 'templates/*' -d /tmp/tpl
           cp /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
-      - name: Godot import, parse and pure timing test
+      - name: Godot import, parse and runtime smoke gate
+        shell: bash
         run: |
+          set -euo pipefail
           GODOT=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           chmod +x "$GODOT"
-          "$GODOT" --headless --path . --import
-          "$GODOT" --headless --path . --script tests/godot_judge_test.gd
-          "$GODOT" --headless --path . --quit-after 2
+          "$GODOT" --headless --path . --import 2>&1 | tee /tmp/rhythm-import.log
+          "$GODOT" --headless --path . --script tests/godot_judge_test.gd 2>&1 | tee /tmp/rhythm-judge.log
+          "$GODOT" --headless --path . --script tests/godot_smoke_test.gd 2>&1 | tee /tmp/rhythm-smoke.log
+          "$GODOT" --headless --path . --quit-after 2 2>&1 | tee /tmp/rhythm-runtime.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/rhythm-{import,judge,smoke,runtime}.log; then
+            echo 'Godot reported a GDScript parse/load error' >&2
+            exit 1
+          fi
+          grep -q 'RhythmJudge: PASS' /tmp/rhythm-judge.log
+          grep -q 'RhythmAppSmoke: PASS' /tmp/rhythm-smoke.log
       - name: Export Web PWA and Windows
         run: |
           GODOT=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64

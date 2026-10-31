@@ -30,7 +30,7 @@ func _input(event: InputEvent) -> void:
     if page_name != "play" or not is_instance_valid(session):
         return
     if event is InputEventKey and event.pressed and not event.echo:
-        var key := event.keycode
+        var key: int = (event as InputEventKey).keycode
         if key == KEY_F3:
             debug_open = not debug_open
             if is_instance_valid(debug_label):
