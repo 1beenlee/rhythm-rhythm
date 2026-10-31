@@ -19,6 +19,7 @@ var countdown_start_usec := 0
 var countdown_pause_usec := 0
 var last_count := 4
 var states: Array[bool] = []
+var event_grades: Array[String] = []
 var audio := AudioStreamPlayer.new()
 var sfx := AudioStreamPlayer.new()
 var tone_cache := {}
@@ -35,9 +36,17 @@ func configure(game: Dictionary, profile: Dictionary) -> void:
     chart = game["_chart"]
     settings = profile
     states.clear()
+    event_grades.clear()
     for _event in chart.get("events", []):
         states.append(false)
-    audio.stream = RhythmSynth.make_song(str(game["id"]), float(chart["bpm"]), float(chart["duration"]), chart.get("calls", []))
+        event_grades.append("")
+    var gid := str(game["id"])
+    tone_cache["Perfect"] = RhythmSynth.make_world_hit(gid, "Perfect")
+    tone_cache["Perfect:left"] = RhythmSynth.make_world_hit(gid, "Perfect", "left")
+    tone_cache["Perfect:right"] = RhythmSynth.make_world_hit(gid, "Perfect", "right")
+    tone_cache["Good"] = RhythmSynth.make_world_hit(gid, "Good")
+    tone_cache["Miss"] = RhythmSynth.make_world_hit(gid, "Miss")
+    audio.stream = RhythmSynth.make_song(gid, float(chart["bpm"]), float(chart["duration"]), chart.get("calls", []))
     audio.volume_linear = float(settings["volume"])
     sfx.volume_linear = float(settings["volume"])
     restart()
@@ -50,6 +59,8 @@ func restart() -> void:
     counts = {"Perfect": 0, "Good": 0, "Miss": 0}
     for i in states.size():
         states[i] = false
+        if i < event_grades.size():
+            event_grades[i] = ""
     ending = false
     paused = false
     active = false
@@ -120,11 +131,13 @@ func _submit_at_time(lane: String, at_seconds: float) -> void:
     else:
         # Ghost taps break combo but cannot inflate event-based Miss totals.
         combo = 0
-        _sound("Miss")
+        _sound("Miss", lane)
         feedback.emit("Outside", lane, combo)
 
 func _apply(index: int, grade_name: String) -> void:
     states[index] = true
+    if index < event_grades.size():
+        event_grades[index] = grade_name
     counts[grade_name] += 1
     if grade_name == "Miss":
         combo = 0
@@ -132,11 +145,16 @@ func _apply(index: int, grade_name: String) -> void:
         combo += 1
         max_combo = maxi(max_combo, combo)
         score += RhythmJudge.points(grade_name) + mini(combo, 50) * 10
-    _sound(grade_name)
-    feedback.emit(grade_name, str(chart["events"][index]["lane"]), combo)
+    var lane_name := str(chart["events"][index]["lane"])
+    _sound(grade_name, lane_name)
+    feedback.emit(grade_name, lane_name, combo)
 
-func _sound(grade_name: String) -> void:
-    sfx.stream = tone_cache.get(grade_name, tone_cache["Miss"])
+func _sound(grade_name: String, lane: String = "") -> void:
+    var key := "%s:%s" % [grade_name, lane]
+    if tone_cache.has(key):
+        sfx.stream = tone_cache[key]
+    else:
+        sfx.stream = tone_cache.get(grade_name, tone_cache["Miss"])
     sfx.play()
 
 func _read_song_time() -> float:
@@ -161,7 +179,7 @@ func resume_session() -> void:
     if active:
         audio.stream_paused = false
     else:
-        # Keep the remaining countdown, excluding time spent paused.
+        # Keep the remaining remaining countdown, excluding time spent paused.
         countdown_start_usec += Time.get_ticks_usec() - countdown_pause_usec
         countdown_pause_usec = 0
 
