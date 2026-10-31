@@ -55,6 +55,22 @@ func _run_tests() -> void:
     s.countdown_start_usec = Time.get_ticks_usec() - 3100000
     s._process(0.016)
     _check(s.active and last_countdown == -1, "song start clears READY/GO countdown")
+    # A queued countdown event must not overwrite the visible PAUSED message.
+    var app := load("res://scenes/app.gd").new()
+    var pause_label := Label.new()
+    var pause_status := Label.new()
+    app.set("session", s)
+    app.set("countdown_text", pause_label)
+    app.set("status", pause_status)
+    s.paused = true
+    pause_label.text = "PAUSED"
+    pause_status.text = "PAUSED - TAP RESUME OR PRESS P"
+    app.call("_on_countdown", 2)
+    _check(pause_label.text == "PAUSED" and pause_status.text.begins_with("PAUSED"), "queued countdown cannot replace paused labels")
+    app.free()
+    pause_label.free()
+    pause_status.free()
+
     s.stop_session()
     s.free()
     if failures > 0:
