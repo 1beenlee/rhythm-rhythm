@@ -6,272 +6,139 @@
   "calls": [],
   "events": [
     {
-      "beat": 4.0,
-      "lane": "left"
-    },
-    {
-      "beat": 5.0,
-      "lane": "left"
-    },
-    {
-      "beat": 6.0,
-      "lane": "right"
+      "beat": 3.0,
+      "lane": "left",
+      "pattern": "single"
     },
     {
       "beat": 7.0,
-      "lane": "right"
-    },
-    {
-      "beat": 8.0,
-      "lane": "left"
-    },
-    {
-      "beat": 9.0,
-      "lane": "left"
-    },
-    {
-      "beat": 10.0,
-      "lane": "right"
+      "lane": "right",
+      "pattern": "single"
     },
     {
       "beat": 11.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "single"
     },
     {
-      "beat": 12.0,
-      "lane": "left"
+      "beat": 14.5,
+      "lane": "right",
+      "pattern": "triple"
     },
     {
-      "beat": 13.0,
-      "lane": "left"
-    },
-    {
-      "beat": 14.0,
-      "lane": "right"
+      "beat": 14.75,
+      "lane": "right",
+      "pattern": "triple"
     },
     {
       "beat": 15.0,
-      "lane": "right"
-    },
-    {
-      "beat": 16.0,
-      "lane": "left"
-    },
-    {
-      "beat": 16.5,
-      "lane": "right"
-    },
-    {
-      "beat": 17.0,
-      "lane": "left"
-    },
-    {
-      "beat": 18.0,
-      "lane": "right"
+      "lane": "right",
+      "pattern": "triple"
     },
     {
       "beat": 19.0,
-      "lane": "right"
-    },
-    {
-      "beat": 20.0,
-      "lane": "left"
-    },
-    {
-      "beat": 21.0,
-      "lane": "left"
-    },
-    {
-      "beat": 22.0,
-      "lane": "right"
-    },
-    {
-      "beat": 22.5,
-      "lane": "left"
+      "lane": "right",
+      "pattern": "single"
     },
     {
       "beat": 23.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "single"
     },
     {
-      "beat": 24.0,
-      "lane": "left"
+      "beat": 26.5,
+      "lane": "left",
+      "pattern": "triple"
     },
     {
-      "beat": 25.0,
-      "lane": "left"
-    },
-    {
-      "beat": 26.0,
-      "lane": "right"
+      "beat": 26.75,
+      "lane": "left",
+      "pattern": "triple"
     },
     {
       "beat": 27.0,
-      "lane": "right"
-    },
-    {
-      "beat": 28.0,
-      "lane": "left"
-    },
-    {
-      "beat": 28.5,
-      "lane": "right"
-    },
-    {
-      "beat": 29.0,
-      "lane": "left"
-    },
-    {
-      "beat": 30.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "triple"
     },
     {
       "beat": 31.0,
-      "lane": "right"
-    },
-    {
-      "beat": 32.0,
-      "lane": "left"
-    },
-    {
-      "beat": 33.0,
-      "lane": "left"
-    },
-    {
-      "beat": 34.0,
-      "lane": "right"
-    },
-    {
-      "beat": 34.5,
-      "lane": "left"
+      "lane": "right",
+      "pattern": "single"
     },
     {
       "beat": 35.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "single"
     },
     {
-      "beat": 36.0,
-      "lane": "left"
+      "beat": 38.5,
+      "lane": "right",
+      "pattern": "triple"
     },
     {
-      "beat": 37.0,
-      "lane": "left"
-    },
-    {
-      "beat": 38.0,
-      "lane": "right"
+      "beat": 38.75,
+      "lane": "right",
+      "pattern": "triple"
     },
     {
       "beat": 39.0,
-      "lane": "right"
-    },
-    {
-      "beat": 40.0,
-      "lane": "left"
-    },
-    {
-      "beat": 40.5,
-      "lane": "right"
-    },
-    {
-      "beat": 41.0,
-      "lane": "left"
-    },
-    {
-      "beat": 42.0,
-      "lane": "right"
+      "lane": "right",
+      "pattern": "triple"
     },
     {
       "beat": 43.0,
-      "lane": "right"
-    },
-    {
-      "beat": 44.0,
-      "lane": "left"
-    },
-    {
-      "beat": 45.0,
-      "lane": "left"
-    },
-    {
-      "beat": 46.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "single"
     },
     {
       "beat": 46.5,
-      "lane": "left"
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 46.75,
+      "lane": "left",
+      "pattern": "triple"
     },
     {
       "beat": 47.0,
-      "lane": "right"
-    },
-    {
-      "beat": 48.0,
-      "lane": "left"
-    },
-    {
-      "beat": 49.0,
-      "lane": "left"
-    },
-    {
-      "beat": 50.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "triple"
     },
     {
       "beat": 51.0,
-      "lane": "right"
-    },
-    {
-      "beat": 52.0,
-      "lane": "left"
-    },
-    {
-      "beat": 52.5,
-      "lane": "right"
-    },
-    {
-      "beat": 53.0,
-      "lane": "left"
-    },
-    {
-      "beat": 54.0,
-      "lane": "right"
+      "lane": "right",
+      "pattern": "single"
     },
     {
       "beat": 55.0,
-      "lane": "right"
-    },
-    {
-      "beat": 56.0,
-      "lane": "left"
-    },
-    {
-      "beat": 57.0,
-      "lane": "left"
-    },
-    {
-      "beat": 58.0,
-      "lane": "right"
+      "lane": "left",
+      "pattern": "single"
     },
     {
       "beat": 58.5,
-      "lane": "left"
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 58.75,
+      "lane": "right",
+      "pattern": "triple"
     },
     {
       "beat": 59.0,
-      "lane": "right"
+      "lane": "right",
+      "pattern": "triple"
     },
     {
-      "beat": 60.0,
-      "lane": "left"
+      "beat": 63.0,
+      "lane": "left",
+      "pattern": "single"
     },
     {
-      "beat": 61.0,
-      "lane": "left"
-    },
-    {
-      "beat": 62.0,
-      "lane": "right"
+      "beat": 67.0,
+      "lane": "right",
+      "pattern": "single"
     }
   ]
 }

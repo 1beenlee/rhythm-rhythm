@@ -217,17 +217,40 @@ def kitchen_prep_cue(is_left: bool):
     def _fn(t: float, _dur: float) -> float:
         idx = int(t * SAMPLE_RATE)
         if is_left:
-            f = 440.0  # Crisp left woodblock
-            return (math.sin(TAU * f * t) + 0.4 * math.sin(TAU * f * 2.4 * t)) * math.exp(-t * 42.0) * 0.22
+            f = 440.0  # Crisp left toss flick ("슉~!")
+            return (math.sin(TAU * f * t) + 0.4 * math.sin(TAU * f * 2.4 * t)) * math.exp(-t * 36.0) * 0.26
         else:
-            f = 880.0  # Crisp right triangle/rim
-            sizzle = prng_noise(idx) * math.exp(-t * 48.0) * 0.08
-            return (math.sin(TAU * f * t) * math.exp(-t * 36.0) * 0.20) + sizzle
+            f = 880.0  # Crisp right toss flick ("슉~!")
+            sizzle = prng_noise(idx) * math.exp(-t * 40.0) * 0.10
+            return (math.sin(TAU * f * t) * math.exp(-t * 32.0) * 0.24) + sizzle
     return _fn
 
 
+def kitchen_roll_cue(is_left: bool):
+    """Fast 3-note ascending chromatic roll ("슉~ 띠리링~!") for Pattern 2 Triple Catch."""
+    def _fn(t: float, _dur: float) -> float:
+        idx = int(t * SAMPLE_RATE)
+        base_f = 659.25 if is_left else 880.0
+        step = min(2, int(t / 0.040))
+        f = base_f * (1.1225 ** step)
+        t_sub = t - step * 0.040
+        trill = math.sin(TAU * f * t_sub) * math.exp(-t_sub * 28.0) * 0.24
+        sizzle = prng_noise(idx) * math.exp(-t * 18.0) * 0.06
+        return trill + sizzle
+    return _fn
+
+
+def steam_charge_rise(t: float, dur: float) -> float:
+    """Rising steam pressure charge for Beat Factory hold-and-release widgets."""
+    prog = min(1.0, t / max(0.01, dur))
+    f = 220.0 + prog * 440.0
+    hiss = prng_noise(int(t * SAMPLE_RATE)) * math.exp(-t * 8.0) * (0.08 + prog * 0.16)
+    tone = math.sin(TAU * f * t) * (0.06 + prog * 0.14)
+    return hiss + tone
+
+
 # ============================================================================
-# 1. BEAT FACTORY — 104 BPM, 42.0s, Funky Industrial Pop (Melody Locked to Chart)
+# 1. BEAT FACTORY — 104 BPM, 42.0s, Built-to-Scale 4-Beat Cadence & Hold Widgets
 # ============================================================================
 def build_beat_factory_song(chart: dict) -> tuple[array.array, array.array]:
     bpm = float(chart["bpm"])
@@ -268,14 +291,37 @@ def build_beat_factory_song(chart: dict) -> tuple[array.array, array.array]:
         if beat_in_bar == 0:
             add_note_stereo(left, right, t0, 1.8 * spb, epiano_chord(chord_prog[chord_idx], 0.14), pan=-0.25)
 
-    # Lock the brass lead 100% to chart["events"] (zero off-beat steam whistle lead!)
-    for idx, ev in enumerate(chart.get("events", [])):
+    # Built-to-Scale 4-beat Phrasing & Hold Charge Cues:
+    # 1. Normal box: 3 preparatory melodic slide cues (Do-Re-Mi) on b-3, b-2, b-1 -> Brass hit on b!
+    # 2. Hold charge box: Press valve on b-2, rising charge sound, giant anvil impact on b!
+    events = chart.get("events", [])
+    for idx, ev in enumerate(events):
         ev_beat = float(ev["beat"])
         ev_time = ev_beat * spb
-        is_offbeat = abs((ev_beat % 1.0) - 0.5) < 0.05
-        # Brass lead note hits squarely on the exact event beat!
-        note_midi = 84 if is_offbeat else riff_scale[idx % len(riff_scale)]
-        add_note_stereo(left, right, ev_time, 0.38 * spb, brass_lead(midi_to_hz(note_midi), 0.22), pan=0.18)
+        action = str(ev.get("action", "press"))
+        hold_len = float(ev.get("hold_len", 0.0))
+
+        if action == "release":
+            # Hold release strike: Massive anvil impact punch!
+            add_note_stereo(left, right, ev_time, 0.45 * spb, brass_lead(midi_to_hz(84), 0.32), pan=0.0)
+            add_note_stereo(left, right, ev_time, 0.25, lambda t, d: snare_drum(t, d, tight=True) * 1.4, pan=0.0)
+            # Rising steam charge during the hold duration (from ev_beat - hold_len to ev_beat)
+            start_t = max(0.0, (ev_beat - hold_len) * spb)
+            add_note_stereo(left, right, start_t, hold_len * spb, lambda t, d: steam_charge_rise(t, hold_len * spb), pan=0.25)
+        elif hold_len > 0.0:
+            # Hold press start cue: locking sound
+            add_note_stereo(left, right, ev_time, 0.12, woodblock_tick(659.25, 0.24), pan=0.25)
+        else:
+            # Normal tap box: 3 melodic anticipation slide ticks (Do, Re, Mi) on b-3, b-2, b-1!
+            slide_notes = [60, 64, 67]  # C, E, G
+            for si, sn in enumerate(slide_notes):
+                st = (ev_beat - 3.0 + float(si)) * spb
+                if st >= 0.0:
+                    add_note_stereo(left, right, st, 0.10, woodblock_tick(midi_to_hz(sn), 0.16 + si * 0.04), pan=-0.20 + si * 0.15)
+            # Brass lead note hits squarely on the exact target event beat!
+            note_midi = riff_scale[idx % len(riff_scale)]
+            add_note_stereo(left, right, ev_time, 0.38 * spb, brass_lead(midi_to_hz(note_midi), 0.26), pan=0.18)
+            add_note_stereo(left, right, ev_time, 0.18, lambda t, d: snare_drum(t, d, tight=True) * 1.25, pan=0.0)
 
     return left, right
 
@@ -394,20 +440,32 @@ def build_rhythm_kitchen_song(chart: dict) -> tuple[array.array, array.array]:
         if beat_in_bar == 0:
             add_note_stereo(left, right, t0, 1.8 * spb, epiano_chord(chords[c_idx], 0.13), pan=0.0)
 
-    # Lock the Marimba & Brass melody 100% to chart["events"] (Left = G major low-mid phrase, Right = D/B high phrase)
+    # 4-Beat Kitchen Cadences (Pattern 1: Single Catch, Pattern 2: Triple Catch with "슉~ 띠리링~!")
     left_scale = [71, 74, 79, 74]
     right_scale = [76, 79, 83, 86]
-    for idx, ev in enumerate(chart.get("events", [])):
+    events = chart.get("events", [])
+    for idx, ev in enumerate(events):
         ev_beat = float(ev["beat"])
         ev_time = ev_beat * spb
         is_left = str(ev.get("lane", "left")) == "left"
-        cue_t = max(0.0, (ev_beat - 1.0) * spb)
-        add_note_stereo(left, right, cue_t, 0.10, kitchen_prep_cue(is_left), pan=-0.45 if is_left else 0.45)
+        pat = str(ev.get("pattern", "single"))
 
+        # Toss sound cue (3 beats before the hit downbeat!)
+        if pat == "triple":
+            # Only play the roll cue on the first note of the triplet (at b - 0.5)
+            if abs((ev_beat % 1.0) - 0.5) < 0.05:
+                cue_t = max(0.0, (round(ev_beat) - 3.0) * spb)
+                add_note_stereo(left, right, cue_t, 0.22, kitchen_roll_cue(is_left), pan=-0.40 if is_left else 0.40)
+        else:
+            # Single catch toss cue
+            cue_t = max(0.0, (ev_beat - 3.0) * spb)
+            add_note_stereo(left, right, cue_t, 0.14, kitchen_prep_cue(is_left), pan=-0.45 if is_left else 0.45)
+
+        # On the hit downbeat: Punchy marimba note + tight snare impact!
         m_note = left_scale[idx % len(left_scale)] if is_left else right_scale[idx % len(right_scale)]
         pan_val = -0.30 if is_left else 0.30
-        add_note_stereo(left, right, ev_time, 0.42 * spb, kitchen_marimba(midi_to_hz(m_note), 0.24), pan=pan_val)
-        add_note_stereo(left, right, ev_time, 0.35 * spb, brass_lead(midi_to_hz(m_note - 12), 0.13), pan=pan_val * 0.5)
+        add_note_stereo(left, right, ev_time, 0.30 * spb, kitchen_marimba(midi_to_hz(m_note), 0.28), pan=pan_val)
+        add_note_stereo(left, right, ev_time, 0.16, lambda t, d: snare_drum(t, d, tight=True) * 1.35, pan=pan_val * 0.4)
 
     return left, right
 

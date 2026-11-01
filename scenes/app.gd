@@ -129,26 +129,37 @@ func _input(event: InputEvent) -> void:
 		return
 	if page_name != "play" or not is_instance_valid(session):
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
+	if event is InputEventKey:
 		var key: int = (event as InputEventKey).keycode
-		if key == KEY_F3:
-			debug_open = not debug_open
-			if is_instance_valid(debug_label):
-				debug_label.visible = debug_open
-			if is_instance_valid(hud):
-				hud.visible = debug_open
-		elif key == KEY_ESCAPE or key == KEY_P:
-			_play_ui_sfx("click")
-			_toggle_pause()
-		elif not session.paused:
-			if selected["id"] == "rhythm_kitchen":
-				if key == KEY_A or key == KEY_LEFT:
-					session.submit("left")
-				elif key == KEY_L or key == KEY_RIGHT:
-					session.submit("right")
-			elif key == KEY_SPACE or key == KEY_F or key == KEY_J:
-				session.submit("tap")
-		get_viewport().set_input_as_handled()
+		if event.is_echo():
+			return
+		if event.pressed:
+			if key == KEY_F3:
+				debug_open = not debug_open
+				if is_instance_valid(debug_label):
+					debug_label.visible = debug_open
+				if is_instance_valid(hud):
+					hud.visible = debug_open
+			elif key == KEY_ESCAPE or key == KEY_P:
+				_play_ui_sfx("click")
+				_toggle_pause()
+			elif not session.paused:
+				if selected["id"] == "rhythm_kitchen":
+					if key in [KEY_A, KEY_LEFT]:
+						session.submit("left")
+					elif key in [KEY_D, KEY_L, KEY_RIGHT]:
+						session.submit("right")
+				else:
+					if key in [KEY_SPACE, KEY_F, KEY_J, KEY_ENTER, KEY_W, KEY_A, KEY_S, KEY_D, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]:
+						session.submit_press("tap")
+			get_viewport().set_input_as_handled()
+		else:
+			# Key Release (Press-Hold-Release mechanics for Beat Factory!)
+			if not session.paused:
+				if selected["id"] == "beat_factory":
+					if key in [KEY_SPACE, KEY_F, KEY_J, KEY_ENTER, KEY_W, KEY_A, KEY_S, KEY_D, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]:
+						session.submit_release("tap")
+			get_viewport().set_input_as_handled()
 
 func _process(_delta: float) -> void:
 	if page_name != "play" or not is_instance_valid(session):

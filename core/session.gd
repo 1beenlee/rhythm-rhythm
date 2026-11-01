@@ -25,6 +25,8 @@ var audio := AudioStreamPlayer.new()
 var sfx := AudioStreamPlayer.new()
 var tone_cache := {}
 var ending := false
+var is_holding := false
+var hold_start_time := 0.0
 
 func _ready() -> void:
 	add_child(audio)
@@ -68,6 +70,8 @@ func restart() -> void:
 	ending = false
 	paused = false
 	active = false
+	is_holding = false
+	hold_start_time = 0.0
 	song_time = 0.0
 	max_song_time = 0.0
 	last_count = 4
@@ -129,14 +133,26 @@ func _process(_delta: float) -> void:
 		_finish()
 
 func submit(lane: String) -> void:
+	submit_press(lane)
+
+func submit_press(lane: String) -> void:
 	if not active or paused or ending:
 		return
-	# Always sample the audio clock on input arrival, never the render-frame delta.
 	song_time = _read_song_time()
 	max_song_time = maxf(max_song_time, song_time)
-	_submit_at_time(lane, song_time)
+	is_holding = true
+	hold_start_time = song_time
+	_submit_at_time(lane, song_time, "press")
 
-func _submit_at_time(lane: String, at_seconds: float) -> void:
+func submit_release(lane: String) -> void:
+	if not active or paused or ending or not is_holding:
+		return
+	is_holding = false
+	song_time = _read_song_time()
+	max_song_time = maxf(max_song_time, song_time)
+	_submit_at_time(lane, song_time, "release")
+
+func _submit_at_time(lane: String, at_seconds: float, action: String = "press") -> void:
 	# Separate deterministic input matching from hardware clock sampling for regression tests.
 	var best_index := -1
 	var best_delta := INF
@@ -145,6 +161,9 @@ func _submit_at_time(lane: String, at_seconds: float) -> void:
 	var events: Array = chart["events"]
 	for i in events.size():
 		if states[i]:
+			continue
+		var ev_act: String = str(events[i].get("action", "press"))
+		if ev_act != action:
 			continue
 		var delta := absf(at_seconds - _event_time(events[i]))
 		if delta > RhythmJudge.MISS_WINDOW:
@@ -161,7 +180,7 @@ func _submit_at_time(lane: String, at_seconds: float) -> void:
 	elif wrong_index >= 0:
 		# A wrong-lane press on a visible note consumes that note as a Miss.
 		_apply(wrong_index, "Miss")
-	else:
+	elif action == "press":
 		# Ghost taps break combo but cannot inflate event-based Miss totals.
 		combo = 0
 		_sound("Miss", lane)

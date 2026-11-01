@@ -1,16 +1,17 @@
 extends RhythmVisual
 
-const SKY_TOP := Color("2d1e6b")
-const SKY_MID := Color("4f2f96")
-const SKY_LOW := Color("7648c2")
-const MESA_BACK := Color("7244b5")
-const MESA_FRONT := Color("9c6ad6")
-const PODIUM_TOP := Color("c8bee8")
-const PODIUM_SIDE := Color("8476b5")
-const PLANET_BLUE := Color("58b8ed")
-const PLANET_LIGHT := Color("9be6ff")
-const BUBBLE_PINK := Color("fdebf8")
-const BUBBLE_CYAN := Color("eefaff")
+var bg_tex: Texture2D
+var alien_tex: Texture2D
+var astro_tex: Texture2D
+var stars_tex: Texture2D
+var fb_tex: Texture2D
+
+func _ready() -> void:
+	bg_tex = load("res://assets/sprites/bg_cosmos.png")
+	alien_tex = load("res://assets/sprites/echo_planet/alien.png")
+	astro_tex = load("res://assets/sprites/echo_planet/astronauts.png")
+	stars_tex = load("res://assets/sprites/common/stars_notes.png")
+	fb_tex = load("res://assets/sprites/common/feedback.png")
 
 func _draw() -> void:
 	var w := size.x
@@ -19,217 +20,139 @@ func _draw() -> void:
 	var counting := is_counting_down()
 	var beat := 0.0 if counting else current_beat()
 	var cycle_beat := fposmod(maxf(0.0, beat), 8.0)
-	var is_response_turn := (not counting) and (cycle_beat >= 3.85 and cycle_beat < 8.0) and beat < 48.0
+	var is_response_turn := (not counting) and (cycle_beat >= 3.85 and cycle_beat < 8.0)
 	var react_ratio := clampf(reaction_timer / 0.45, 0.0, 1.0)
 	var bob := 0.0 if (reduced_motion or counting) else absf(sin(beat * PI)) * 5.0
 
-	# Check if alien is actively singing a call note right now
+	# Check if alien is actively singing right now
 	var singing_now := false
 	if not counting and cycle_beat < 4.0:
 		for c_item in chart.get("calls", []):
 			var d := beat - float(c_item.get("beat", -99.0))
-			if d >= -0.08 and d <= 0.38:
+			if d >= -0.05 and d <= 0.35:
 				singing_now = true
 				break
 
-	# 1. Background Layer: Deep Cosmic Violet Sky, Nebula & Twinkling 4-Point Stars (Panels 05 & 06)
-	draw_rect(Rect2(0, 0, w, h), SKY_MID)
-	draw_rect(Rect2(0, 0, w, h * 0.50), SKY_TOP)
-	draw_rect(Rect2(0, h * 0.65, w, h * 0.35), SKY_LOW)
-	CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.76, h * 0.56), w * 0.22, h * 0.14, -0.15, Color(0.55, 0.34, 0.82, 0.45), Color.TRANSPARENT, 0.0)
-	CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.38, h * 0.66), w * 0.26, h * 0.12, 0.10, Color(0.62, 0.40, 0.88, 0.38), Color.TRANSPARENT, 0.0)
-
-	var star_pts := [
-		Vector2(0.08, 0.20), Vector2(0.06, 0.34), Vector2(0.11, 0.44),
-		Vector2(0.92, 0.20), Vector2(0.94, 0.35), Vector2(0.89, 0.46),
-	]
-	for si in range(star_pts.size()):
-		var sp: Vector2 = star_pts[si]
-		var sr := 8.0 if (si % 2 == 0) else 5.5
-		if not reduced_motion and not counting:
-			sr += sin(beat * 2.0 + float(si)) * 1.8
-		CartoonDraw.draw_star(self, Vector2(sp.x * w, sp.y * h), sr, sr * 0.35, 4, 0.0, CartoonDraw.GOLD, Color.TRANSPARENT, 0.0)
-
-	# 2. Midground Layer: Giant Icy-Blue Planet on Right + Purple Canyon Mesas (Panels 05 & 06)
-	var planet_c := Vector2(w * 0.90, h * 0.70)
-	var planet_r := minf(w, h) * 0.25
-	CartoonDraw.draw_outlined_circle(self, planet_c, planet_r, PLANET_BLUE, Color("3c6fb0"), 3.5)
-	CartoonDraw.draw_outlined_ellipse(self, planet_c + Vector2(-planet_r * 0.22, -planet_r * 0.26), planet_r * 0.55, planet_r * 0.28, -0.35, PLANET_LIGHT, Color.TRANSPARENT, 0.0)
-	CartoonDraw.draw_star(self, planet_c + Vector2(planet_r * 0.18, -planet_r * 0.10), 10.0, 4.0, 4, 0.0, Color.WHITE, Color.TRANSPARENT, 0.0)
-
-	var mesa_pts := PackedVector2Array([
-		Vector2(w * 0.40, h),
-		Vector2(w * 0.45, h * 0.78),
-		Vector2(w * 0.64, h * 0.78),
-		Vector2(w * 0.70, h),
-	])
-	CartoonDraw.draw_outlined_polygon(self, mesa_pts, MESA_FRONT, CartoonDraw.INK, 4.0)
-
-	# Left Foreground Alien Stage Podium (Panels 05 & 06)
-	var pod_rect := Rect2(-12.0, h * 0.89, w * 0.55, h * 0.14)
-	CartoonDraw.draw_outlined_box(self, pod_rect, PODIUM_SIDE, CartoonDraw.INK, 4.2, 10.0)
-	CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.25, h * 0.89), w * 0.28, 16.0, 0.0, PODIUM_TOP, CartoonDraw.INK, 4.0)
-
-	# 3. Left Character: Sky-Cyan Alien (Panels 05, 06, 11)
-	var alien_pos := Vector2(w * 0.21, h * 0.98 + bob * 0.4)
-	var alien_s := 1.02 if is_narrow else 1.34
-	var alien_pose := "sing"
-	var alien_face := 1
-	if react_ratio > 0.0:
-		if last_grade == "Miss":
-			alien_pose = "idle"
-			alien_face = 5
-		else:
-			alien_pose = "success"
-			alien_face = 3
-	elif is_response_turn:
-		alien_pose = "listen"
-		alien_face = 2
-	elif counting:
-		alien_pose = "idle"
-		alien_face = 0
-	elif singing_now:
-		alien_pose = "sing"
-		alien_face = 1
+	# 1. Full-Resolution Cosmic Landscape Background (960x640)
+	if bg_tex:
+		draw_texture_rect(bg_tex, Rect2(0, 0, w, h), false)
 	else:
-		alien_pose = "idle"
-		alien_face = 0
+		draw_rect(Rect2(0, 0, w, h), Color("4f2f96"))
 
-	CartoonDraw.draw_echo_alien(self, alien_pos, alien_s, alien_pose, alien_face, false)
-
-	# 4. Right Characters: The Two Astronaut Kids in White Spacesuits (Panels 05 & 06)
-	var astro_pose := "cheer" if (react_ratio > 0.0 and last_grade != "Miss") else ("miss" if (react_ratio > 0.0 and last_grade == "Miss") else "listen")
-	var astro_s := 0.84 if is_narrow else 1.06
-	CartoonDraw.draw_echo_astronaut(self, Vector2(w * 0.72, h * 0.99 + bob * 0.5), astro_s, astro_pose)
-	CartoonDraw.draw_echo_astronaut(self, Vector2(w * 0.89, h * 0.99 + bob * 0.4), astro_s * 0.96, astro_pose)
-
-	# 5. Unified Dual Sender (Call) + Receiver (Echo Response) Lanes in the Sky!
-	# Both Sender and Receiver marks stay simultaneously visible on screen without EVER flickering on click!
-	_draw_dual_call_response_display(w, h, is_narrow, beat, counting, cycle_beat, is_response_turn, react_ratio)
-
-	# 6. Hit Feedback Banner & Sparkle Stars in Mid-Sky (never hiding or replacing the bubbles!)
+	# 2. Alien Character on Left Podium
+	# Frames: 0=Idle, 1=Sing, 2=Cheer, 3=Miss
+	var alien_frame := 0
 	if react_ratio > 0.0:
-		if last_grade != "Miss":
-			CartoonDraw.draw_star(self, Vector2(w * 0.11, h * 0.55), 20.0, 9.0, 5, -PI * 0.5, Color.WHITE, CartoonDraw.HOT_PINK, 4.0)
-			CartoonDraw.draw_star(self, Vector2(w * 0.34, h * 0.53), 22.0, 10.0, 5, -PI * 0.5, Color.WHITE, CartoonDraw.GOLD, 4.0)
-		paint_feedback(Vector2(w * 0.53, h * 0.58), true)
+		alien_frame = 3 if last_grade == "Miss" else 2
+	elif singing_now:
+		alien_frame = 1
+	elif is_response_turn:
+		alien_frame = 0
 
-	# 7. Top Stage HUD Bar (Panels 05 & 06)
-	var phrase_lit := 0 if counting else (int(floorf(fposmod(maxf(0.0, beat), 4.0))) + 1)
-	var hud_col := CartoonDraw.HOT_PINK if is_response_turn else CartoonDraw.GOLD
-	CartoonDraw.draw_stage_hud_banner(self, w, "Echo Planet", beat, score_value(), combo_value(), phrase_lit, hud_col)
+	var alien_w := 125.0 if is_narrow else 155.0
+	var alien_h := 165.0 if is_narrow else 205.0
+	var alien_x := w * 0.18 - alien_w * 0.5
+	var alien_y := h * 0.88 - alien_h + bob * 0.4
 
-func _draw_dual_call_response_display(
-	w: float,
-	h: float,
-	is_narrow: bool,
-	beat: float,
-	counting: bool,
-	cycle_beat: float,
-	is_response_turn: bool,
-	_react_ratio: float
-) -> void:
-	var cycle_start := floorf(maxf(0.0, beat) / 8.0) * 8.0
-	if cycle_start >= 48.0:
-		cycle_start = 40.0
+	if alien_tex:
+		var src_alien := Rect2(float(alien_frame) * 150.0, 0.0, 150.0, 200.0)
+		draw_texture_rect_region(alien_tex, Rect2(alien_x, alien_y, alien_w, alien_h), src_alien)
 
-	var bub_x := w * (0.08 if is_narrow else 0.15)
-	var bub_w := w * (0.84 if is_narrow else 0.70)
-	var row_h := h * 0.145
-	var call_rect := Rect2(bub_x, h * 0.135, bub_w, row_h)
-	var resp_rect := Rect2(bub_x, h * 0.310, bub_w, row_h)
+	# 3. Astronaut Kids on Right
+	# Frames: 0=Listen, 1=Cheer, 2=Miss
+	var astro_frame := 0
+	if react_ratio > 0.0:
+		astro_frame = 2 if last_grade == "Miss" else 1
+	elif is_response_turn:
+		astro_frame = 0
 
-	# Active turn border highlight so player immediately knows whether it's LISTEN or ECHO turn
-	var call_bg := BUBBLE_PINK if not is_response_turn else Color(0.95, 0.90, 0.96, 0.88)
-	var resp_bg := BUBBLE_CYAN if is_response_turn else Color(0.90, 0.95, 1.0, 0.88)
+	var astro_w := 115.0 if is_narrow else 145.0
+	var astro_h := 140.0 if is_narrow else 175.0
+	var astro_x := w * 0.78 - astro_w * 0.5
+	var astro_y := h * 0.90 - astro_h + bob * 0.3
 
-	# Top Bubble: Sender (Alien Call) with tail pointing down-left toward the Alien
-	CartoonDraw.draw_speech_bubble(self, call_rect, Vector2(w * 0.23, h * 0.46), "", call_bg, CartoonDraw.INK, 18)
-	# Bottom Bubble: Receiver (Your Echo) with tail pointing down-right toward the Astronauts
-	CartoonDraw.draw_speech_bubble(self, resp_rect, Vector2(w * 0.77, h * 0.49), "", resp_bg, CartoonDraw.INK, 18)
+	if astro_tex:
+		var src_astro := Rect2(float(astro_frame) * 130.0, 0.0, 130.0, 160.0)
+		draw_texture_rect_region(astro_tex, Rect2(astro_x, astro_y, astro_w, astro_h), src_astro)
 
-	# Left role badges inside each bubble
-	var label_w := 74.0 if is_narrow else 108.0
-	var call_tag := Rect2(call_rect.position.x + 10.0, call_rect.position.y + 10.0, label_w, call_rect.size.y - 20.0)
-	var resp_tag := Rect2(resp_rect.position.x + 10.0, resp_rect.position.y + 10.0, label_w, resp_rect.size.y - 20.0)
-	var call_tag_col := CartoonDraw.GOLD if not is_response_turn else Color("d8cfe8")
-	var resp_tag_col := CartoonDraw.HOT_PINK if is_response_turn else Color("c9d8eb")
-	CartoonDraw.draw_outlined_box(self, call_tag, call_tag_col, CartoonDraw.INK, 3.0, 10.0)
-	CartoonDraw.draw_outlined_box(self, resp_tag, resp_tag_col, CartoonDraw.INK, 3.0, 10.0)
-	CartoonDraw.draw_outlined_text(self, Vector2(call_tag.position.x, call_tag.get_center().y + 6.0), "LISTEN", call_tag.size.x, 13 if is_narrow else 16, CartoonDraw.INK, Color.WHITE, 2)
-	CartoonDraw.draw_outlined_text(self, Vector2(resp_tag.position.x, resp_tag.get_center().y + 6.0), "ECHO!", resp_tag.size.x, 14 if is_narrow else 17, Color.WHITE if is_response_turn else CartoonDraw.INK, CartoonDraw.INK if is_response_turn else Color.WHITE, 2)
+	# 4. Dual Call & Response Rhythm Cue Display (Caller + Receiver together on one screen!)
+	_draw_dual_rhythm_display(w, h, is_narrow, beat, cycle_beat, counting, react_ratio)
 
-	# Shared 4-beat timeline X-coordinate mapping (rel_b in 0.0 .. 3.0+)
-	var track_left := call_rect.position.x + label_w + (34.0 if is_narrow else 56.0)
-	var track_right := call_rect.end.x - (28.0 if is_narrow else 48.0)
-	var track_span := maxf(80.0, track_right - track_left)
-	var call_cy := call_rect.get_center().y + 2.0
-	var resp_cy := resp_rect.get_center().y + 2.0
+	# 5. Feedback Badge on Hit
+	if react_ratio > 0.0:
+		var fb_w := 130.0 if is_narrow else 160.0
+		var fb_h := 38.0 if is_narrow else 46.0
+		var fb_frame := 2 if last_grade == "Miss" else (0 if last_grade == "Perfect" else 1)
+		if fb_tex:
+			var src_fb := Rect2(float(fb_frame) * 220.0, 0.0, 220.0, 64.0)
+			draw_texture_rect_region(fb_tex, Rect2(astro_x + astro_w * 0.5 - fb_w * 0.5, h * 0.52, fb_w, fb_h), src_fb)
 
-	# Draw 4 steady quarter-beat grid ticks + connecting vertical alignment lines across both bubbles
-	for bi in range(4):
-		var gx := track_left + (float(bi) / 3.0) * track_span
-		draw_line(Vector2(gx, call_cy), Vector2(gx, resp_cy), Color(0.25, 0.20, 0.42, 0.16), 2.0, true)
-		draw_circle(Vector2(gx, call_cy), 4.0, Color(0.20, 0.16, 0.35, 0.28))
-		draw_circle(Vector2(gx, resp_cy), 4.0, Color(0.20, 0.16, 0.35, 0.28))
+	# 6. Top Stage HUD Bar
+	var lit_dots := 0 if (counting or (score_value() == 0 and beat < 4.0)) else (int(floorf(maxf(0.0, beat))) % 4 + 1)
+	CartoonDraw.draw_stage_hud_banner(self, w, "Echo Planet", beat, score_value(), combo_value(), lit_dots, Color.WHITE)
 
-	# Sweeping Beat Playhead Cursor so player sees exact real-time rhythm position in both turns!
-	if not counting and beat < 48.0:
-		if cycle_beat < 4.0:
-			var play_x := track_left + clampf(cycle_beat / 3.0, 0.0, 1.05) * track_span
-			draw_line(Vector2(play_x, call_rect.position.y + 8.0), Vector2(play_x, call_rect.end.y - 8.0), Color(1.0, 0.78, 0.12, 0.65), 4.0, true)
-		else:
-			var resp_rel := cycle_beat - 4.0
-			var play_x := track_left + clampf(resp_rel / 3.0, 0.0, 1.05) * track_span
-			draw_line(Vector2(play_x, resp_rect.position.y + 8.0), Vector2(play_x, resp_rect.end.y - 8.0), Color(1.0, 0.30, 0.60, 0.75), 4.0, true)
+func _draw_dual_rhythm_display(w: float, h: float, is_narrow: bool, beat: float, cycle_beat: float, counting: bool, _react_ratio: float) -> void:
+	if counting:
+		return
 
-	# 1) Draw Sender (Call) Musical Notes (♪) in Top Bubble from chart["calls"]
-	var calls: Array = chart.get("calls", [])
-	for ci in range(calls.size()):
-		var cb := float(calls[ci].get("beat", -99.0))
-		if cb < cycle_start - 0.05 or cb >= cycle_start + 4.0:
-			continue
-		var rel_b := cb - cycle_start
-		var nx := track_left + (rel_b / 3.0) * track_span
-		var is_active_note := (not counting) and absf(beat - cb) <= 0.26
-		var is_sung := counting or (beat >= cb - 0.06)
-		var n_scale := (1.42 if is_active_note else 1.15) * (0.80 if is_narrow else 1.0)
-		if is_active_note:
-			draw_arc(Vector2(nx, call_cy), 22.0, 0.0, TAU, 24, CartoonDraw.GOLD, 3.5, true)
-		var n_col := CartoonDraw.GOLD if is_active_note else (CartoonDraw.MINT if (ci == 0 and is_sung) else (CartoonDraw.INK if is_sung else Color(0.35, 0.30, 0.50, 0.42)))
-		CartoonDraw.draw_music_note(self, Vector2(nx, call_cy - (5.0 if is_active_note else 0.0)), n_scale, n_col, CartoonDraw.INK)
+	# Big Top Cue Bar showing the current 8-beat cycle:
+	# Left Half: Alien Call Notes (Beats 0-3)
+	# Right Half: Human Response Notes (Beats 4-7)
+	var bar_w := w * (0.88 if is_narrow else 0.76)
+	var bar_h := 64.0 if is_narrow else 78.0
+	var bar_rect := Rect2(w * 0.50 - bar_w * 0.5, h * 0.16, bar_w, bar_h)
 
-	# 2) Draw Receiver (Player Response) Star Marks (☆ -> ★) in Bottom Bubble from chart["events"]
+	# Semi-transparent dark navy pill with clean rounded border
+	draw_rect(bar_rect, Color(0.12, 0.10, 0.28, 0.88))
+	draw_rect(bar_rect, Color(0.85, 0.80, 0.98, 0.90), false, 3.5)
+
+	# Center divider between Call (Left) and Response (Right)
+	var cx := bar_rect.get_center().x
+	draw_line(Vector2(cx, bar_rect.position.y + 8.0), Vector2(cx, bar_rect.end.y - 8.0), Color(0.85, 0.80, 0.98, 0.60), 2.5, true)
+
+	# Labels: "CALL" on left, "RESPONSE" on right
+	CartoonDraw.draw_outlined_text(self, Vector2(bar_rect.position.x + 16.0, bar_rect.position.y + 18.0), "ALIEN CALL", int(bar_w * 0.4), 14, Color("ffd524"), Color("181624"), 2.0)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx + 16.0, bar_rect.position.y + 18.0), "YOUR TURN", int(bar_w * 0.4), 14, Color("4cc9f0"), Color("181624"), 2.0)
+
+	var cycle_base := floorf(beat / 8.0) * 8.0
+	var icon_size := 32.0 if is_narrow else 40.0
+
+	# 1) Draw Call icons (Beats 0-4)
+	for call in chart.get("calls", []):
+		var cb := float(call.get("beat", 0.0))
+		if cb >= cycle_base and cb < cycle_base + 4.0:
+			var rel_b := cb - cycle_base
+			var ix := bar_rect.position.x + (rel_b / 4.0) * (bar_w * 0.45) + 36.0
+			var iy := bar_rect.position.y + bar_h * 0.56
+			var is_active := (cycle_beat >= rel_b - 0.15 and cycle_beat <= rel_b + 0.45)
+			var scale_mul := 1.25 if is_active else 1.0
+
+			# Star icon from stars_notes.png (0=gold star, 1=pink star)
+			var f_idx := 0 if is_active else 1
+			if stars_tex:
+				var src := Rect2(float(f_idx) * 64.0, 0.0, 64.0, 64.0)
+				var d_rect := Rect2(ix - icon_size * 0.5 * scale_mul, iy - icon_size * 0.5 * scale_mul, icon_size * scale_mul, icon_size * scale_mul)
+				draw_texture_rect_region(stars_tex, d_rect, src)
+
+	# 2) Draw Response icons (Beats 4-8)
 	var events: Array = chart.get("events", [])
-	for ei in range(events.size()):
-		var eb := float(events[ei].get("beat", -99.0))
-		if eb < cycle_start + 3.95 or eb >= cycle_start + 8.0:
-			continue
-		var rel_b := eb - (cycle_start + 4.0)
-		var ex := track_left + (rel_b / 3.0) * track_span
-		var ev_g := event_grade(ei)
-		var diff := eb - beat
-		var is_hit := (ev_g == "Perfect" or ev_g == "Good")
-		var is_missed := (ev_g == "Miss") or ((not counting) and diff < -0.22 and not is_hit)
+	for i in range(events.size()):
+		var ev: Dictionary = events[i]
+		var eb := float(ev.get("beat", 0.0))
+		if eb >= cycle_base + 3.8 and eb < cycle_base + 8.0:
+			var rel_b := eb - cycle_base - 4.0
+			var ix := cx + (rel_b / 4.0) * (bar_w * 0.45) + 36.0
+			var iy := bar_rect.position.y + bar_h * 0.56
+			var eg := event_grade(i)
+			var is_hit := (eg == "Perfect" or eg == "Good")
+			var is_miss := (eg == "Miss")
+			var diff := eb - beat
+			var is_active := (diff <= 0.20 and diff >= -0.30)
+			var scale_mul := 1.28 if (is_active or is_hit) else 1.0
 
-		# Shrinking timing ring as the beat cursor approaches this star slot!
-		if not counting and not is_hit and not is_missed and diff >= -0.10 and diff <= 0.85:
-			var ring_t := clampf(diff / 0.85, 0.0, 1.0)
-			var ring_r := 16.0 + ring_t * (18.0 if is_narrow else 24.0)
-			draw_arc(Vector2(ex, resp_cy), ring_r, 0.0, TAU, 24, Color(1.0, 0.78, 0.12, 0.85 - ring_t * 0.55), 3.2, true)
-
-		var star_r := (16.0 if is_narrow else 21.0) * (1.22 if (is_hit and absf(diff) < 0.30) else 1.0)
-		if is_hit:
-			var border_c := CartoonDraw.HOT_PINK if ev_g == "Perfect" else CartoonDraw.SKY_BLUE
-			var fill_c := CartoonDraw.GOLD if ev_g == "Perfect" else Color.WHITE
-			CartoonDraw.draw_star(self, Vector2(ex, resp_cy), star_r, star_r * 0.45, 5, -PI * 0.5, fill_c, border_c, 4.0)
-			CartoonDraw.draw_star(self, Vector2(ex, resp_cy), star_r * 0.72, star_r * 0.32, 5, -PI * 0.5, Color.WHITE, CartoonDraw.INK, 2.5)
-		elif is_missed:
-			CartoonDraw.draw_outlined_circle(self, Vector2(ex, resp_cy), star_r * 0.68, Color("ffd6de"), CartoonDraw.CORAL, 3.0)
-			var cr := star_r * 0.35
-			draw_line(Vector2(ex - cr, resp_cy - cr), Vector2(ex + cr, resp_cy + cr), CartoonDraw.CORAL, 3.5, true)
-			draw_line(Vector2(ex + cr, resp_cy - cr), Vector2(ex - cr, resp_cy + cr), CartoonDraw.CORAL, 3.5, true)
-		else:
-			# Pending target star slot aligned directly underneath the corresponding Call note!
-			var slot_fill := Color("fff6cc") if (not counting and absf(diff) <= 0.20) else Color("dce8f7")
-			CartoonDraw.draw_star(self, Vector2(ex, resp_cy), star_r * 0.78, star_r * 0.36, 5, -PI * 0.5, slot_fill, CartoonDraw.INK, 3.0)
+			# 0=gold star (hit), 2=cyan star (target), 3=sparkle
+			var f_idx := 0 if is_hit else (2 if not is_miss else 1)
+			if stars_tex:
+				var src := Rect2(float(f_idx) * 64.0, 0.0, 64.0, 64.0)
+				var d_rect := Rect2(ix - icon_size * 0.5 * scale_mul, iy - icon_size * 0.5 * scale_mul, icon_size * scale_mul, icon_size * scale_mul)
+				draw_texture_rect_region(stars_tex, d_rect, src)

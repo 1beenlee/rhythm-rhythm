@@ -10,6 +10,20 @@ var rehearsal_grade := "Perfect"
 var reduced_motion := false
 var card_selected := false
 var summary_data: Dictionary = {}
+var bg_title_tex: Texture2D
+var bg_results_tex: Texture2D
+var bg_select_tex: Texture2D
+var worker_tex: Texture2D
+var alien_tex: Texture2D
+var chef_tex: Texture2D
+
+func _init() -> void:
+	bg_title_tex = load("res://assets/sprites/bg_title.png")
+	bg_results_tex = load("res://assets/sprites/bg_results.png")
+	bg_select_tex = load("res://assets/sprites/bg_select.png")
+	worker_tex = load("res://assets/sprites/beat_factory/worker.png")
+	alien_tex = load("res://assets/sprites/echo_planet/alien.png")
+	chef_tex = load("res://assets/sprites/rhythm_kitchen/chef.png")
 
 func setup(p_mode: String, p_game_id: String = "beat_factory", p_tier: String = "SUPERB", p_reduced: bool = false) -> StageUIArt:
 	mode = p_mode
@@ -60,58 +74,11 @@ func _draw() -> void:
 # =============================================================================
 # PANEL 01: TITLE SCREEN ART (01_title.png)
 # =============================================================================
-func _draw_title_screen_art(w: float, h: float, _beat: float, bob: float) -> void:
-	var is_narrow := w < 520.0
+func _draw_title_screen_art(w: float, h: float, _beat: float, _bob: float) -> void:
+	if bg_title_tex:
+		draw_texture_rect(bg_title_tex, Rect2(0, 0, w, h), false)
+		return
 	draw_rect(Rect2(0, 0, w, h), Color("ffe359"))
-	var center := Vector2(w * 0.50, h * 0.36)
-	var max_r := maxf(w, h) * 1.25
-	for i in range(18):
-		if i % 2 == 0:
-			var a0 := float(i) * TAU / 18.0 + (0.0 if reduced_motion else t_anim * 0.08)
-			var a1 := float(i + 1) * TAU / 18.0 + (0.0 if reduced_motion else t_anim * 0.08)
-			draw_colored_polygon(PackedVector2Array([center, center + Vector2(cos(a0), sin(a0)) * max_r, center + Vector2(cos(a1), sin(a1)) * max_r]), Color("ffd034"))
-
-	# Scalloped Black Cloud Logo with Thick White Sticker Border (Panel 01!)
-	var cloud_c := Vector2(w * 0.50, h * 0.31)
-	var cs := 0.72 if is_narrow else 1.0
-	var lobes := [
-		Vector2(-155.0, 12.0), Vector2(-115.0, -45.0), Vector2(-38.0, -68.0),
-		Vector2(45.0, -82.0), Vector2(125.0, -42.0), Vector2(162.0, 14.0),
-		Vector2(115.0, 62.0), Vector2(0.0, 72.0), Vector2(-115.0, 62.0),
-	]
-	var lobe_r := [56.0, 62.0, 68.0, 74.0, 62.0, 56.0, 56.0, 64.0, 56.0]
-	for li in range(lobes.size()):
-		draw_circle(cloud_c + lobes[li] * cs, (lobe_r[li] + 10.0) * cs, Color.WHITE)
-	draw_circle(cloud_c, 108.0 * cs, Color.WHITE)
-	for li in range(lobes.size()):
-		draw_circle(cloud_c + lobes[li] * cs, lobe_r[li] * cs, Color("151423"))
-	draw_circle(cloud_c, 98.0 * cs, Color("151423"))
-
-	var fs_main := int(round(52.0 * cs))
-	CartoonDraw.draw_outlined_text(self, cloud_c + Vector2(-210.0 * cs, -14.0 * cs), "RHYTHM", int(420.0 * cs), fs_main, Color.WHITE, Color("151423"), 4.0)
-	CartoonDraw.draw_outlined_text(self, cloud_c + Vector2(-210.0 * cs, 44.0 * cs), "RHYTHM", int(420.0 * cs), fs_main, Color("ff5588"), Color("151423"), 4.0)
-
-	# Purple Pill Sub-Banner: "GROOVE SHOW" + Vector 5-Point Stars (Zero Unicode Tofu on Web!)
-	var pill_w := 320.0 * cs
-	var pill_h := 48.0 * cs
-	var pill_rect := Rect2(cloud_c.x - pill_w * 0.5, cloud_c.y + 62.0 * cs, pill_w, pill_h)
-	CartoonDraw.draw_outlined_box(self, pill_rect.grow(5.0 * cs), Color.WHITE, Color.WHITE, 0.0, 26.0 * cs)
-	CartoonDraw.draw_outlined_box(self, pill_rect, Color("8e44ec"), CartoonDraw.INK, 4.2 * cs, 22.0 * cs)
-	CartoonDraw.draw_outlined_text(self, pill_rect.position + Vector2(0, pill_h * 0.70), "GROOVE SHOW", int(pill_w), int(round(23.0 * cs)), Color.WHITE, Color("4a1c8c"), 2.5)
-	CartoonDraw.draw_star(self, pill_rect.position + Vector2(30.0 * cs, pill_h * 0.50), 11.0 * cs, 4.8 * cs, 5, -PI * 0.5, CartoonDraw.GOLD, Color("4a1c8c"), 2.2 * cs)
-	CartoonDraw.draw_star(self, pill_rect.position + Vector2(pill_w - 30.0 * cs, pill_h * 0.50), 11.0 * cs, 4.8 * cs, 5, -PI * 0.5, CartoonDraw.GOLD, Color("4a1c8c"), 2.2 * cs)
-
-	# Floating Colorful Musical Notes
-	CartoonDraw.draw_music_note(self, Vector2(w * 0.11, h * 0.25 - bob * 0.5), 1.35 * cs, Color("ff5d9e"), CartoonDraw.INK)
-	CartoonDraw.draw_music_note(self, Vector2(w * 0.89, h * 0.17 + bob * 0.5), 1.45 * cs, Color("38b6ff"), CartoonDraw.INK)
-	CartoonDraw.draw_music_note(self, Vector2(w * 0.88, h * 0.53 - bob * 0.4), 1.35 * cs, Color("c84bff"), CartoonDraw.INK)
-
-	# The 4 Cast Characters standing along the bottom (clean, zero black circular blobs!)
-	var char_s := 0.78 if is_narrow else 1.05
-	CartoonDraw.draw_title_host(self, Vector2(w * 0.19, h * 0.96), char_s * 1.12, -bob * 0.5)
-	CartoonDraw.draw_orange_tv_buddy(self, Vector2(w * 0.49, h * 0.83 - bob * 0.4), char_s * 1.02)
-	CartoonDraw.draw_echo_alien(self, Vector2(w * 0.68, h * 0.99 - bob * 0.5), char_s * 0.92, "idle", 0, false)
-	CartoonDraw.draw_kitchen_chef(self, Vector2(w * 0.84, h * 0.97 - bob * 0.4), char_s * 0.95, "idle", 0, false)
 
 # =============================================================================
 # PANEL 02: STAGE SELECT HEADER & PORTRAIT CARDS (02_stage_select.png)
@@ -155,24 +122,27 @@ func _draw_poster_card(w: float, h: float, bob: float) -> void:
 	var s := minf(w / 240.0, h / 320.0)
 	if is_narrow:
 		s = minf(w / 280.0, h / 110.0)
-	var bottom_limit := outer_rect.end.y - 4.0
+	var bottom_limit := outer_rect.end.y - 6.0
 	if game_id == "beat_factory":
-		var box_c := Vector2(w * 0.68, h * 0.56)
-		CartoonDraw.draw_outlined_box(self, Rect2(box_c.x - 28.0 * s, box_c.y - 22.0 * s, 56.0 * s, 44.0 * s), Color("f5b968"), CartoonDraw.INK, 3.8 * s, 4.0)
-		draw_circle(box_c + Vector2(-10.0 * s, 2.0 * s), 3.0 * s, CartoonDraw.INK)
-		draw_circle(box_c + Vector2(10.0 * s, 2.0 * s), 3.0 * s, CartoonDraw.INK)
-		CartoonDraw.draw_factory_worker(self, Vector2(w * 0.38, bottom_limit - 4.0 + bob * 0.2), 1.02 * s, "ready", 0, true)
+		if worker_tex:
+			var cw := 125.0 * s
+			var ch := 170.0 * s
+			var src := Rect2(160.0, 0, 160.0, 220.0) # Ready frame
+			draw_texture_rect_region(worker_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
 	elif game_id == "echo_planet":
-		var space_c := Vector2(w * 0.50, h * 0.66)
+		var space_c := Vector2(w * 0.50, h * 0.64)
 		CartoonDraw.draw_outlined_ellipse(self, space_c, w * 0.38, h * 0.22, -0.1, Color("2e2466"), Color("4a3b8c"), 3.0)
-		CartoonDraw.draw_star(self, space_c + Vector2(-46.0 * s, -28.0 * s), 11.0 * s, 4.5 * s, 4, 0.0, CartoonDraw.GOLD, Color.TRANSPARENT, 0.0)
-		CartoonDraw.draw_star(self, space_c + Vector2(-12.0 * s, -48.0 * s), 9.0 * s, 3.8 * s, 4, 0.0, CartoonDraw.GOLD, Color.TRANSPARENT, 0.0)
-		# Keep Alien feet strictly above bottom_limit so it never pokes below the card border!
-		CartoonDraw.draw_echo_alien(self, Vector2(w * 0.52, bottom_limit - 2.0 + bob * 0.2), 1.00 * s, "idle", 0, false)
+		if alien_tex:
+			var cw := 120.0 * s
+			var ch := 160.0 * s
+			var src := Rect2(0.0, 0, 150.0, 200.0) # Idle frame
+			draw_texture_rect_region(alien_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
 	else:
-		var chef_base := Vector2(w * 0.54, bottom_limit - 4.0 + bob * 0.2)
-		CartoonDraw.draw_kitchen_chef(self, chef_base, 1.02 * s, "left", 0, false)
-		CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.24, h * 0.76), 32.0 * s, 14.0 * s, 0.2, Color("5c586b"), CartoonDraw.INK, 3.8 * s)
+		if chef_tex:
+			var cw := 120.0 * s
+			var ch := 175.0 * s
+			var src := Rect2(150.0, 0, 150.0, 220.0) # Left Pan frame
+			draw_texture_rect_region(chef_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
 
 # =============================================================================
 # REHEARSAL STAGE & CHARACTER SHEET PREVIEW (Panels 10, 11, 12)
@@ -260,57 +230,62 @@ func _draw_eval_screen(w: float, h: float, bob: float) -> void:
 	])
 	draw_colored_polygon(spot_pts, Color(1.0, 0.92, 0.55, 0.12))
 	var s := 0.85 if w < 520.0 else 1.15
-	var cpos := Vector2(w * 0.50, h * 0.66 + bob * 0.3)
-	if game_id == "beat_factory":
-		CartoonDraw.draw_factory_worker(self, cpos, s, "cheer" if grade_tier == "SUPERB" else "idle", 4 if grade_tier == "SUPERB" else 0, false)
-	elif game_id == "echo_planet":
-		CartoonDraw.draw_echo_alien(self, cpos, s, "success" if grade_tier == "SUPERB" else "idle", 3 if grade_tier == "SUPERB" else 0, true)
-	else:
-		CartoonDraw.draw_kitchen_chef(self, cpos, s, "cheer" if grade_tier == "SUPERB" else "idle", 3 if grade_tier == "SUPERB" else 0, true)
+	var cw := 140.0 * s
+	var ch := 190.0 * s
+	var crect := Rect2(w * 0.50 - cw * 0.5, h * 0.66 - ch + bob * 0.3, cw, ch)
+	var f_idx := 3 if grade_tier == "SUPERB" else 0
+
+	if game_id == "beat_factory" and worker_tex:
+		draw_texture_rect_region(worker_tex, crect, Rect2(float(f_idx) * 160.0, 0, 160.0, 220.0))
+	elif game_id == "echo_planet" and alien_tex:
+		draw_texture_rect_region(alien_tex, crect, Rect2(float(f_idx) * 150.0, 0, 150.0, 200.0))
+	elif chef_tex:
+		draw_texture_rect_region(chef_tex, crect, Rect2(float(f_idx) * 150.0, 0, 150.0, 220.0))
 
 # =============================================================================
 # PANEL 09: RESULTS / AWARD SCREEN (09_results_superb.png)
 # =============================================================================
 func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> void:
 	var is_narrow := w < 520.0
-	var bg_base := Color("ffa3bf") if grade_tier == "SUPERB" else (Color("9be0d4") if grade_tier == "OK" else Color("b0b5cf"))
-	draw_rect(Rect2(0, 0, w, h), bg_base)
-	draw_colored_polygon(PackedVector2Array([Vector2(0, 0), Vector2(w * 0.28, 0), Vector2(w * 0.42, h * 0.45), Vector2(0, h * 0.30)]), Color(1.0, 0.90, 0.32, 0.55))
-	draw_colored_polygon(PackedVector2Array([Vector2(w, 0), Vector2(w * 0.72, 0), Vector2(w * 0.58, h * 0.45), Vector2(w, h * 0.30)]), Color(1.0, 0.90, 0.32, 0.55))
-	CartoonDraw.draw_outlined_ellipse(self, Vector2(w * (0.50 if is_narrow else 0.28), h * 0.88), w * (0.44 if is_narrow else 0.28), h * 0.16, 0.0, Color("ffe270"), Color.TRANSPARENT, 0.0)
+	if bg_results_tex:
+		draw_texture_rect(bg_results_tex, Rect2(0, 0, w, h), false)
+	else:
+		var bg_base := Color("ffa3bf") if grade_tier == "SUPERB" else (Color("9be0d4") if grade_tier == "OK" else Color("b0b5cf"))
+		draw_rect(Rect2(0, 0, w, h), bg_base)
 
 	var banner_txt := grade_tier + "!"
 	var banner_col := CartoonDraw.GOLD if grade_tier == "SUPERB" else (CartoonDraw.MINT if grade_tier == "OK" else CartoonDraw.CORAL)
-	var banner_fs := 40 if is_narrow else 64
-	var banner_y := h * (0.14 if is_narrow else 0.20)
-	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y + 5.0), banner_txt, int(w), banner_fs, Color("d92658"), CartoonDraw.INK, Color.WHITE, 5.0, 10.0)
+	var banner_fs := 38 if is_narrow else 58
+	var banner_y := h * (0.10 if is_narrow else 0.14)
 	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y), banner_txt, int(w), banner_fs, banner_col, CartoonDraw.INK, Color.WHITE, 4.5, 9.0)
 
-	var trio_cx := w * (0.50 if is_narrow else 0.28)
-	var trio_y := h * (0.48 if is_narrow else 0.78)
-	var ts := (0.62 if is_narrow else 0.96)
-	var pose_w := "cheer" if grade_tier != "TRY AGAIN" else "idle"
-	var face_w := 4 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
-	var pose_a := "success" if grade_tier != "TRY AGAIN" else "idle"
-	var face_a := 3 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
-	var pose_c := "cheer" if grade_tier != "TRY AGAIN" else "idle"
-	var face_c := 1 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
+	if not bg_results_tex:
+		var trio_cx := w * (0.50 if is_narrow else 0.28)
+		var trio_y := h * (0.48 if is_narrow else 0.78)
+		var ts := (0.62 if is_narrow else 0.96)
+		var pose_w := "cheer" if grade_tier != "TRY AGAIN" else "idle"
+		var face_w := 4 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
+		var pose_a := "success" if grade_tier != "TRY AGAIN" else "idle"
+		var face_a := 3 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
+		var pose_c := "cheer" if grade_tier != "TRY AGAIN" else "idle"
+		var face_c := 1 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
 
-	CartoonDraw.draw_echo_alien(self, Vector2(trio_cx, trio_y - 36.0 * ts - bob * 0.5), ts * 0.95, pose_a, face_a, true)
-	CartoonDraw.draw_factory_worker(self, Vector2(trio_cx - 92.0 * ts, trio_y + 18.0 * ts - bob * 0.4), ts * 0.95, pose_w, face_w, false)
-	CartoonDraw.draw_kitchen_chef(self, Vector2(trio_cx + 92.0 * ts, trio_y + 22.0 * ts - bob * 0.4), ts * 0.95, pose_c, face_c, false)
+		CartoonDraw.draw_echo_alien(self, Vector2(trio_cx, trio_y - 36.0 * ts - bob * 0.5), ts * 0.95, pose_a, face_a, true)
+		CartoonDraw.draw_factory_worker(self, Vector2(trio_cx - 92.0 * ts, trio_y + 18.0 * ts - bob * 0.4), ts * 0.95, pose_w, face_w, false)
+		CartoonDraw.draw_kitchen_chef(self, Vector2(trio_cx + 92.0 * ts, trio_y + 22.0 * ts - bob * 0.4), ts * 0.95, pose_c, face_c, false)
 
-	if grade_tier == "SUPERB":
-		for li in range(3):
-			var lx := trio_cx - 110.0 * ts + float(li) * 22.0 * ts
-			draw_line(Vector2(lx, trio_y - 140.0 * ts), Vector2(lx - 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
-			var rx := trio_cx + 68.0 * ts + float(li) * 22.0 * ts
-			draw_line(Vector2(rx, trio_y - 140.0 * ts), Vector2(rx + 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
+		if grade_tier == "SUPERB":
+			for li in range(3):
+				var lx := trio_cx - 110.0 * ts + float(li) * 22.0 * ts
+				draw_line(Vector2(lx, trio_y - 140.0 * ts), Vector2(lx - 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
+				var rx := trio_cx + 68.0 * ts + float(li) * 22.0 * ts
+				draw_line(Vector2(rx, trio_y - 140.0 * ts), Vector2(rx + 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
 
 	var card_rect := Rect2(w * 0.54, h * 0.21, w * 0.42, h * 0.64)
 	if is_narrow:
 		card_rect = Rect2(w * 0.08, h * 0.52, w * 0.84, h * 0.37)
-	CartoonDraw.draw_outlined_box(self, card_rect, Color("fff8e7"), Color("f0a868"), 4.0, 20.0)
+	if not bg_results_tex:
+		CartoonDraw.draw_outlined_box(self, card_rect, Color("fff8e7"), Color("f0a868"), 4.0, 20.0)
 
 	var st_title := str(summary_data.get("stage_name", "Rhythm Kitchen"))
 	var sc_val := int(summary_data.get("score", 52400))

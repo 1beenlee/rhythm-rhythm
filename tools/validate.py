@@ -101,7 +101,8 @@ def validate_repo(root: Path):
                 issues.append(f"{pack}: event #{index} uses lane not mapped in controls")
             if manifest.get("controls") == "left/right" and lane == "tap":
                 issues.append(f"{pack}: event #{index} uses lane not mapped in controls")
-            if beat - last_per_lane.get(lane, -100) < 0.16 * bpm / 60:
+            # Allow rapid rhythmic patterns (16th notes / fast triplets down to 120ms) while guarding against duplicate frames
+            if beat - last_per_lane.get(lane, -100) < 0.12 * bpm / 60:
                 issues.append(f"{pack}: overlapping judgement events on lane {lane}")
             last_per_lane[lane] = beat
         calls = chart.get("calls", [])

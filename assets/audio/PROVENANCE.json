@@ -16,7 +16,7 @@
       "game_id": "echo_planet",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 30,
+      "duration_sec": 38.4,
       "bpm": 100,
       "license": "CC0-1.0 / Original First-Party Procedural Composition (tools/generate_audio_assets.py)"
     },
