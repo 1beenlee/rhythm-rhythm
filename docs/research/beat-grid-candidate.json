@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "purpose": "Exploratory uniform beat grid only; NOT a playable input chart",
+  "source_audio": "owner MP3 matched to MP4 audio",
+  "rate_hz": 44100,
+  "bpm_candidate": 132,
+  "seconds_per_beat": 0.45454545454545453,
+  "spectral_flux_phase_mp3_s": 0.291,
+  "relative_mp3_lag_vs_mp4_s": 0.02505668934240363,
+  "spectral_flux_phase_mp4_s": 0.26594331065759635,
+  "stable_phase_windows_mp3_s": [
+    {
+      "range_s": [
+        15,
+        40
+      ],
+      "phase_s": 0.2895
+    },
+    {
+      "range_s": [
+        40,
+        65
+      ],
+      "phase_s": 0.2955
+    },
+    {
+      "range_s": [
+        65,
+        90
+      ],
+      "phase_s": 0.2885
+    },
+    {
+      "range_s": [
+        90,
+        113
+      ],
+      "phase_s": 0.292
+    }
+  ],
+  "confidence": "candidate: not verified downbeat or event-specific cue times",
+  "observed_actual_hit_events": [],
+  "requirements_to_promote": [
+    "confirm downbeat from video + audio",
+    "annotate actual ingredient arrivals/catches",
+    "separate rhythm cue vs backing onset",
+    "verify hardware-independent timing and chart tolerance"
+  ]
+}

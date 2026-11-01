@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "purpose": "Pixel-color scene segmentation candidates; 30fps video, not frame-verified state chart",
+  "recording_fps": 30,
+  "sections": [
+    {
+      "state": "kitchen_day",
+      "from_s": 12.53,
+      "to_s": 77.93,
+      "confidence": "high for visual appearance",
+      "notes": "minor momentary flashes 26.57-27.07, 41.13-41.60, 62.93-63.43"
+    },
+    {
+      "state": "white_silhouette",
+      "from_s": 78.07,
+      "to_s": 85.23,
+      "confidence": "medium",
+      "notes": "some nonwhite intervals at 83.4-84.8"
+    },
+    {
+      "state": "underwater_marine",
+      "from_s": 85.27,
+      "to_s": 98.57,
+      "confidence": "high for sustained blue patch, manual verification required"
+    },
+    {
+      "state": "kitchen_day_return",
+      "from_s": 99.8,
+      "to_s": 117.8,
+      "confidence": "high",
+      "notes": "brief white/bright flash at 114.80-115.23"
+    },
+    {
+      "state": "results_transition",
+      "from_s": 117.8,
+      "to_s": 138.43,
+      "confidence": "low for exact boundary",
+      "notes": "determine cut-by-cut results screens separately"
+    }
+  ],
+  "algorithm": "Per-frame 30fps average of static upper-left window and wall patches, median filter over 9 frames; tests are heuristic scene masks; do not use as gameplay animation triggers."
+}
