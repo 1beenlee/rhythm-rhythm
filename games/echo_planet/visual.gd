@@ -168,7 +168,7 @@ func _draw_dual_call_response_display(
 
 	# Draw 4 steady quarter-beat grid ticks + connecting vertical alignment lines across both bubbles
 	for bi in range(4):
-		var gx := track_left + (float(bi) / 3.2) * track_span
+		var gx := track_left + (float(bi) / 3.0) * track_span
 		draw_line(Vector2(gx, call_cy), Vector2(gx, resp_cy), Color(0.25, 0.20, 0.42, 0.16), 2.0, true)
 		draw_circle(Vector2(gx, call_cy), 4.0, Color(0.20, 0.16, 0.35, 0.28))
 		draw_circle(Vector2(gx, resp_cy), 4.0, Color(0.20, 0.16, 0.35, 0.28))
@@ -176,11 +176,11 @@ func _draw_dual_call_response_display(
 	# Sweeping Beat Playhead Cursor so player sees exact real-time rhythm position in both turns!
 	if not counting and beat < 48.0:
 		if cycle_beat < 4.0:
-			var play_x := track_left + clampf(cycle_beat / 3.2, 0.0, 1.05) * track_span
+			var play_x := track_left + clampf(cycle_beat / 3.0, 0.0, 1.05) * track_span
 			draw_line(Vector2(play_x, call_rect.position.y + 8.0), Vector2(play_x, call_rect.end.y - 8.0), Color(1.0, 0.78, 0.12, 0.65), 4.0, true)
 		else:
 			var resp_rel := cycle_beat - 4.0
-			var play_x := track_left + clampf(resp_rel / 3.2, 0.0, 1.05) * track_span
+			var play_x := track_left + clampf(resp_rel / 3.0, 0.0, 1.05) * track_span
 			draw_line(Vector2(play_x, resp_rect.position.y + 8.0), Vector2(play_x, resp_rect.end.y - 8.0), Color(1.0, 0.30, 0.60, 0.75), 4.0, true)
 
 	# 1) Draw Sender (Call) Musical Notes (♪) in Top Bubble from chart["calls"]
@@ -190,7 +190,7 @@ func _draw_dual_call_response_display(
 		if cb < cycle_start - 0.05 or cb >= cycle_start + 4.0:
 			continue
 		var rel_b := cb - cycle_start
-		var nx := track_left + (rel_b / 3.2) * track_span
+		var nx := track_left + (rel_b / 3.0) * track_span
 		var is_active_note := (not counting) and absf(beat - cb) <= 0.26
 		var is_sung := counting or (beat >= cb - 0.06)
 		var n_scale := (1.42 if is_active_note else 1.15) * (0.80 if is_narrow else 1.0)
@@ -206,7 +206,7 @@ func _draw_dual_call_response_display(
 		if eb < cycle_start + 3.95 or eb >= cycle_start + 8.0:
 			continue
 		var rel_b := eb - (cycle_start + 4.0)
-		var ex := track_left + (rel_b / 3.2) * track_span
+		var ex := track_left + (rel_b / 3.0) * track_span
 		var ev_g := event_grade(ei)
 		var diff := eb - beat
 		var is_hit := (ev_g == "Perfect" or ev_g == "Good")

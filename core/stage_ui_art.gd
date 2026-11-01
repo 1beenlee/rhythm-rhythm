@@ -106,21 +106,12 @@ func _draw_title_screen_art(w: float, h: float, _beat: float, bob: float) -> voi
 	CartoonDraw.draw_music_note(self, Vector2(w * 0.89, h * 0.17 + bob * 0.5), 1.45 * cs, Color("38b6ff"), CartoonDraw.INK)
 	CartoonDraw.draw_music_note(self, Vector2(w * 0.88, h * 0.53 - bob * 0.4), 1.35 * cs, Color("c84bff"), CartoonDraw.INK)
 
-	# Dark Crowd Silhouettes Along the Bottom + The 4 Cast Characters
+	# The 4 Cast Characters standing along the bottom (clean, zero black circular blobs!)
 	var char_s := 0.78 if is_narrow else 1.05
-	for ci in range(11):
-		var cx := w * (0.24 + float(ci) * 0.072)
-		draw_circle(Vector2(cx, h * 0.94), 26.0 * char_s, Color("19172b"))
-
 	CartoonDraw.draw_title_host(self, Vector2(w * 0.19, h * 0.96), char_s * 1.12, -bob * 0.5)
 	CartoonDraw.draw_orange_tv_buddy(self, Vector2(w * 0.49, h * 0.83 - bob * 0.4), char_s * 1.02)
 	CartoonDraw.draw_echo_alien(self, Vector2(w * 0.68, h * 0.99 - bob * 0.5), char_s * 0.92, "idle", 0, false)
 	CartoonDraw.draw_kitchen_chef(self, Vector2(w * 0.84, h * 0.97 - bob * 0.4), char_s * 0.95, "idle", 0, false)
-
-	for fi in range(12):
-		var fx := w * (0.04 + float(fi) * 0.088)
-		var fy := h * (0.97 if (fi >= 3 and fi <= 8) else 0.94)
-		draw_circle(Vector2(fx, fy), 24.0 * char_s, Color("161529"))
 
 # =============================================================================
 # PANEL 02: STAGE SELECT HEADER & PORTRAIT CARDS (02_stage_select.png)

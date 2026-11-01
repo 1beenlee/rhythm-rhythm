@@ -100,10 +100,10 @@ func _process(_delta: float) -> void:
 				sfx.stream = tone_cache["Tick"]
 				sfx.play()
 			countdown.emit(remaining)
-		if beats_elapsed >= 3.0:
+		if beats_elapsed >= 4.0:
 			active = true
 			audio.play()
-			countdown.emit(-1)  # UI leaves READY/GO when the actual track starts.
+			countdown.emit(-1)  # UI leaves READY/GO on the exact 4/4 downbeat of measure 1!
 		return
 	var duration_sec := float(chart.get("duration", 36.0))
 	var events: Array = chart.get("events", [])
@@ -191,8 +191,6 @@ func _sound(grade_name: String, lane: String = "") -> void:
 	sfx.play()
 
 func _read_song_time() -> float:
-	if OS.has_feature("web"):
-		return RhythmJudge.corrected_time(audio.get_playback_position(), 0.0, 0.0, int(settings["input_ms"]), int(settings["output_ms"]))
 	var since_mix := clampf(AudioServer.get_time_since_last_mix(), 0.0, 0.050)
 	var out_lat := clampf(AudioServer.get_output_latency(), 0.0, 0.060)
 	return RhythmJudge.corrected_time(audio.get_playback_position(), since_mix, out_lat, int(settings["input_ms"]), int(settings["output_ms"]))

@@ -268,16 +268,12 @@ def build_beat_factory_song(chart: dict) -> tuple[array.array, array.array]:
         if beat_in_bar == 0:
             add_note_stereo(left, right, t0, 1.8 * spb, epiano_chord(chord_prog[chord_idx], 0.14), pan=-0.25)
 
-    # Lock the brass lead & steam whistle cues 100% to chart["events"]!
+    # Lock the brass lead 100% to chart["events"] (zero off-beat steam whistle lead!)
     for idx, ev in enumerate(chart.get("events", [])):
         ev_beat = float(ev["beat"])
         ev_time = ev_beat * spb
         is_offbeat = abs((ev_beat % 1.0) - 0.5) < 0.05
-        # Audible whistle cue 0.5 beat before every event
-        cue_time = max(0.0, (ev_beat - 0.5) * spb)
-        cue_freq = 1174.66 if is_offbeat else 880.0
-        add_note_stereo(left, right, cue_time, 0.10, steam_cue_whistle(cue_freq), pan=-0.35)
-        # Brass lead note hits on the exact event beat!
+        # Brass lead note hits squarely on the exact event beat!
         note_midi = 84 if is_offbeat else riff_scale[idx % len(riff_scale)]
         add_note_stereo(left, right, ev_time, 0.38 * spb, brass_lead(midi_to_hz(note_midi), 0.22), pan=0.18)
 
@@ -344,18 +340,12 @@ def build_echo_planet_song(chart: dict) -> tuple[array.array, array.array]:
         add_note_stereo(left, right, c_sec, 0.24, space_bell(midi_to_hz(c_midi + 12), 0.22), pan=-0.10)
         add_note_stereo(left, right, c_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=-0.08)
 
-    # Player Response Turn: play the exact matching backing guide bell + rhythmic punch on every event beat!
+    # Player Response Turn: keep rhythm section rock-steady; let player's input produce the melody notes!
     for ev in chart.get("events", []):
         ev_beat = float(ev["beat"])
         ev_sec = ev_beat * spb
-        matching_call_key = round((ev_beat - 4.0) * 2.0)
-        tone = call_tone_map.get(matching_call_key, 1)
-        scale_midi = [65, 69, 72, 74, 77, 79, 81]
-        e_midi = scale_midi[max(0, min(len(scale_midi) - 1, tone))]
-        # Crisp backing guide bell, marimba, and tight snare punch on the exact response beat!
-        add_note_stereo(left, right, ev_sec, 0.26, kitchen_marimba(midi_to_hz(e_midi), 0.24), pan=0.08)
-        add_note_stereo(left, right, ev_sec, 0.24, space_bell(midi_to_hz(e_midi + 12), 0.24), pan=0.08)
-        add_note_stereo(left, right, ev_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=0.06)
+        # Crisp rhythmic rimshot punch on response beat so player has a firm metronomic pulse
+        add_note_stereo(left, right, ev_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True) * 1.25, pan=0.0)
 
     return left, right
 

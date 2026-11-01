@@ -595,7 +595,7 @@ func _run_post_stage_sequence(summary: Dictionary, tier: String) -> void:
 	_text(str(summary.get("stage_name", "Stage")) + " - Evaluating your groove...", 18, RhythmTokens.WHITE)
 	_spacer()
 
-	await get_tree().create_timer(0.55).timeout
+	await get_tree().create_timer(1.35).timeout
 	if my_seq != eval_seq_id or not is_inside_tree():
 		return
 
@@ -621,7 +621,7 @@ func _run_post_stage_sequence(summary: Dictionary, tier: String) -> void:
 	var tier_col := RhythmTokens.YELLOW if tier == "SUPERB" else (RhythmTokens.AQUA if tier == "OK" else RhythmTokens.CORAL)
 	_text("***  " + tier + "!  ***", 42, tier_col)
 
-	await get_tree().create_timer(0.95).timeout
+	await get_tree().create_timer(2.40).timeout
 	if my_seq != eval_seq_id or not is_inside_tree():
 		return
 
