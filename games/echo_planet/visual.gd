@@ -58,21 +58,21 @@ func _draw() -> void:
 		var src_alien := Rect2(float(alien_frame) * 150.0, 0.0, 150.0, 200.0)
 		draw_texture_rect_region(alien_tex, Rect2(alien_x, alien_y, alien_w, alien_h), src_alien)
 
-	# 3. Astronaut Kids on Right
-	# Frames: 0=Listen, 1=Cheer, 2=Miss
+	# 3. Dual Astronauts (Boy & Girl) on Right
+	# Frames: 0=Listen, 1=Cheer, 2=Miss (Each frame is 260x200)
 	var astro_frame := 0
 	if react_ratio > 0.0:
 		astro_frame = 2 if last_grade == "Miss" else 1
 	elif is_response_turn:
 		astro_frame = 0
 
-	var astro_w := 115.0 if is_narrow else 145.0
-	var astro_h := 140.0 if is_narrow else 175.0
+	var astro_w := 180.0 if is_narrow else 235.0
+	var astro_h := 140.0 if is_narrow else 182.0
 	var astro_x := w * 0.78 - astro_w * 0.5
 	var astro_y := h * 0.90 - astro_h + bob * 0.3
 
 	if astro_tex:
-		var src_astro := Rect2(float(astro_frame) * 130.0, 0.0, 130.0, 160.0)
+		var src_astro := Rect2(float(astro_frame) * 260.0, 0.0, 260.0, 200.0)
 		draw_texture_rect_region(astro_tex, Rect2(astro_x, astro_y, astro_w, astro_h), src_astro)
 
 	# 4. Dual Call & Response Rhythm Cue Display (Caller + Receiver together on one screen!)
@@ -113,6 +113,11 @@ func _draw_dual_rhythm_display(w: float, h: float, is_narrow: bool, beat: float,
 	# Labels: "CALL" on left, "RESPONSE" on right
 	CartoonDraw.draw_outlined_text(self, Vector2(bar_rect.position.x + 16.0, bar_rect.position.y + 18.0), "ALIEN CALL", int(bar_w * 0.4), 14, Color("ffd524"), Color("181624"), 2.0)
 	CartoonDraw.draw_outlined_text(self, Vector2(cx + 16.0, bar_rect.position.y + 18.0), "YOUR TURN", int(bar_w * 0.4), 14, Color("4cc9f0"), Color("181624"), 2.0)
+
+	# Smooth Playhead Sweep Marker across the 8-beat measure
+	var sweep_x := bar_rect.position.x + (clampf(cycle_beat, 0.0, 8.0) / 8.0) * bar_rect.size.x
+	draw_line(Vector2(sweep_x, bar_rect.position.y + 2.0), Vector2(sweep_x, bar_rect.end.y - 2.0), Color(1.0, 0.95, 0.40, 0.85), 3.5, true)
+	draw_circle(Vector2(sweep_x, bar_rect.position.y + 4.0), 4.5, Color(1.0, 0.95, 0.40, 0.95))
 
 	var cycle_base := floorf(beat / 8.0) * 8.0
 	var icon_size := 32.0 if is_narrow else 40.0

@@ -386,13 +386,8 @@ def build_echo_planet_song(chart: dict) -> tuple[array.array, array.array]:
         add_note_stereo(left, right, c_sec, 0.24, space_bell(midi_to_hz(c_midi + 12), 0.22), pan=-0.10)
         add_note_stereo(left, right, c_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True), pan=-0.08)
 
-    # Player Response Turn: keep rhythm section rock-steady; let player's input produce the melody notes!
-    for ev in chart.get("events", []):
-        ev_beat = float(ev["beat"])
-        ev_sec = ev_beat * spb
-        # Crisp rhythmic rimshot punch on response beat so player has a firm metronomic pulse
-        add_note_stereo(left, right, ev_sec, 0.14, lambda t, d: snare_drum(t, d, tight=True) * 1.25, pan=0.0)
-
+    # Player Response Turn: keep groove clean so player's hit produces the response audio!
+    # No baked snare drums on ev_sec so the player's hit feedback is 100% crisp and distinct.
     return left, right
 
 

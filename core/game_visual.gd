@@ -25,20 +25,22 @@ func configure(game_chart: Dictionary, live_session: RhythmSession, minimal_moti
 func _gui_input(event: InputEvent) -> void:
 	if session == null or not session.active or session.paused:
 		return
-	var click_pos := Vector2.ZERO
-	var triggered := false
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		click_pos = event.position
-		triggered = true
-	elif event is InputEventScreenTouch and event.pressed:
-		click_pos = event.position
-		triggered = true
-	if triggered:
-		var lanes: Array = session.manifest.get("lanes", ["tap"]) if session.manifest != null else ["tap"]
-		if lanes.size() == 1:
-			session.submit("tap")
+	var lanes: Array = session.manifest.get("lanes", ["tap"]) if session.manifest != null else ["tap"]
+	var is_single := (lanes.size() == 1)
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var lane := "tap" if is_single else ("left" if event.position.x < size.x * 0.5 else "right")
+		if event.pressed:
+			session.submit_press(lane)
 		else:
-			session.submit("left" if click_pos.x < size.x * 0.5 else "right")
+			session.submit_release(lane)
+		accept_event()
+	elif event is InputEventScreenTouch:
+		var lane := "tap" if is_single else ("left" if event.position.x < size.x * 0.5 else "right")
+		if event.pressed:
+			session.submit_press(lane)
+		else:
+			session.submit_release(lane)
 		accept_event()
 
 func show_feedback(grade_name: String, lane: String, combo_val: int) -> void:

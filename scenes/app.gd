@@ -140,6 +140,8 @@ func _input(event: InputEvent) -> void:
 					debug_label.visible = debug_open
 				if is_instance_valid(hud):
 					hud.visible = debug_open
+			elif key == KEY_F4:
+				_results({"stage_name": str(selected.get("name", "Beat Factory")), "score": 88500, "best": 92000, "max_combo": 34, "counts": {"Perfect": 30, "Good": 4, "Miss": 0}})
 			elif key == KEY_ESCAPE or key == KEY_P:
 				_play_ui_sfx("click")
 				_toggle_pause()
@@ -278,7 +280,8 @@ func _home() -> void:
 # =============================================================================
 func _select_games() -> void:
 	_dispose_session()
-	var is_portrait := get_window().size.x < get_window().size.y
+	var win := get_window()
+	var is_portrait := (win.size.x < win.size.y) if win != null else false
 	_reset_page("select", 10 if is_portrait else 16, Color("98d8ff"))
 	_play_bgm("select")
 
@@ -426,7 +429,8 @@ func _rehearsal_tap() -> void:
 func _play() -> void:
 	_dispose_session()
 	_play_bgm("")
-	var is_portrait := get_window().size.x < get_window().size.y
+	var win := get_window()
+	var is_portrait := (win.size.x < win.size.y) if win != null else false
 	_reset_page("play", 4 if is_portrait else 6, Color("191622"))
 	session = RhythmSession.new()
 	add_child(session)
@@ -645,7 +649,8 @@ func _show_award_screen(summary: Dictionary, tier: String = "") -> void:
 	if not latest_summary.has("stage_name"):
 		latest_summary["stage_name"] = str(selected.get("name", "Rhythm Kitchen"))
 	_dispose_session()
-	var is_portrait := get_window().size.x < get_window().size.y
+	var win := get_window()
+	var is_portrait := (win.size.x < win.size.y) if win != null else false
 	_reset_page("results", 0, Color("ffa3bf"))
 
 	var bgm_key := "results_superb" if tier == "SUPERB" else ("results_ok" if tier == "OK" else "results_try_again")

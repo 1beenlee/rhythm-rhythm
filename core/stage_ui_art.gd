@@ -74,11 +74,25 @@ func _draw() -> void:
 # =============================================================================
 # PANEL 01: TITLE SCREEN ART (01_title.png)
 # =============================================================================
-func _draw_title_screen_art(w: float, h: float, _beat: float, _bob: float) -> void:
+func _draw_title_screen_art(w: float, h: float, _beat: float, bob: float) -> void:
 	if bg_title_tex:
 		draw_texture_rect(bg_title_tex, Rect2(0, 0, w, h), false)
-		return
-	draw_rect(Rect2(0, 0, w, h), Color("ffe359"))
+	else:
+		draw_rect(Rect2(0, 0, w, h), Color("ffe359"))
+
+	# Cast characters standing cutely on stage floor
+	var floor_y := h * 0.86
+	var is_narrow := w < 520.0
+	var s := 0.65 if is_narrow else 0.82
+	var cw := 110.0 * s
+	var ch := 150.0 * s
+
+	if worker_tex:
+		draw_texture_rect_region(worker_tex, Rect2(w * 0.22 - cw * 0.5, floor_y - ch + bob * 0.4, cw, ch), Rect2(0, 0, 160.0, 220.0))
+	if alien_tex:
+		draw_texture_rect_region(alien_tex, Rect2(w * 0.38 - cw * 0.5, floor_y - ch * 0.95 - bob * 0.5, cw, ch), Rect2(0, 0, 150.0, 200.0))
+	if chef_tex:
+		draw_texture_rect_region(chef_tex, Rect2(w * 0.62 - cw * 0.5, floor_y - ch + bob * 0.4, cw, ch), Rect2(0, 0, 150.0, 220.0))
 
 # =============================================================================
 # PANEL 02: STAGE SELECT HEADER & PORTRAIT CARDS (02_stage_select.png)
@@ -256,36 +270,41 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	var banner_txt := grade_tier + "!"
 	var banner_col := CartoonDraw.GOLD if grade_tier == "SUPERB" else (CartoonDraw.MINT if grade_tier == "OK" else CartoonDraw.CORAL)
 	var banner_fs := 38 if is_narrow else 58
-	var banner_y := h * (0.10 if is_narrow else 0.14)
+	var banner_y := h * (0.08 if is_narrow else 0.12)
 	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y), banner_txt, int(w), banner_fs, banner_col, CartoonDraw.INK, Color.WHITE, 4.5, 9.0)
 
-	if not bg_results_tex:
-		var trio_cx := w * (0.50 if is_narrow else 0.28)
-		var trio_y := h * (0.48 if is_narrow else 0.78)
-		var ts := (0.62 if is_narrow else 0.96)
-		var pose_w := "cheer" if grade_tier != "TRY AGAIN" else "idle"
-		var face_w := 4 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
-		var pose_a := "success" if grade_tier != "TRY AGAIN" else "idle"
-		var face_a := 3 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
-		var pose_c := "cheer" if grade_tier != "TRY AGAIN" else "idle"
-		var face_c := 1 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
+	# Cheering Character Trio on Left (Worker, Alien, Chef)
+	var trio_cx := w * (0.50 if is_narrow else 0.26)
+	var trio_y := h * (0.48 if is_narrow else 0.82)
+	var ts := (0.68 if is_narrow else 1.0)
+	var cw := 115.0 * ts
+	var ch := 160.0 * ts
 
-		CartoonDraw.draw_echo_alien(self, Vector2(trio_cx, trio_y - 36.0 * ts - bob * 0.5), ts * 0.95, pose_a, face_a, true)
-		CartoonDraw.draw_factory_worker(self, Vector2(trio_cx - 92.0 * ts, trio_y + 18.0 * ts - bob * 0.4), ts * 0.95, pose_w, face_w, false)
-		CartoonDraw.draw_kitchen_chef(self, Vector2(trio_cx + 92.0 * ts, trio_y + 22.0 * ts - bob * 0.4), ts * 0.95, pose_c, face_c, false)
+	if alien_tex:
+		var a_frame := 2 if grade_tier != "TRY AGAIN" else 0
+		var arect := Rect2(trio_cx - cw * 0.5, trio_y - ch * 1.05 - bob * 0.5, cw, ch)
+		draw_texture_rect_region(alien_tex, arect, Rect2(float(a_frame) * 150.0, 0, 150.0, 200.0))
+	if worker_tex:
+		var w_frame := 3 if grade_tier != "TRY AGAIN" else 0
+		var wrect := Rect2(trio_cx - cw * 1.35, trio_y - ch * 0.95 - bob * 0.4, cw, ch)
+		draw_texture_rect_region(worker_tex, wrect, Rect2(float(w_frame) * 160.0, 0, 160.0, 220.0))
+	if chef_tex:
+		var c_frame := 3 if grade_tier != "TRY AGAIN" else 0
+		var crect := Rect2(trio_cx + cw * 0.35, trio_y - ch * 0.95 - bob * 0.4, cw, ch)
+		draw_texture_rect_region(chef_tex, crect, Rect2(float(c_frame) * 150.0, 0, 150.0, 220.0))
 
-		if grade_tier == "SUPERB":
-			for li in range(3):
-				var lx := trio_cx - 110.0 * ts + float(li) * 22.0 * ts
-				draw_line(Vector2(lx, trio_y - 140.0 * ts), Vector2(lx - 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
-				var rx := trio_cx + 68.0 * ts + float(li) * 22.0 * ts
-				draw_line(Vector2(rx, trio_y - 140.0 * ts), Vector2(rx + 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
+	if grade_tier == "SUPERB":
+		for li in range(3):
+			var lx := trio_cx - 100.0 * ts + float(li) * 20.0 * ts
+			draw_line(Vector2(lx, trio_y - 180.0 * ts), Vector2(lx - 12.0 * ts, trio_y - 215.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
+			var rx := trio_cx + 60.0 * ts + float(li) * 20.0 * ts
+			draw_line(Vector2(rx, trio_y - 180.0 * ts), Vector2(rx + 12.0 * ts, trio_y - 215.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
 
-	var card_rect := Rect2(w * 0.54, h * 0.21, w * 0.42, h * 0.64)
+	# Scoreboard Card on Right
+	var card_rect := Rect2(w * 0.52, h * 0.20, w * 0.44, h * 0.62)
 	if is_narrow:
-		card_rect = Rect2(w * 0.08, h * 0.52, w * 0.84, h * 0.37)
-	if not bg_results_tex:
-		CartoonDraw.draw_outlined_box(self, card_rect, Color("fff8e7"), Color("f0a868"), 4.0, 20.0)
+		card_rect = Rect2(w * 0.08, h * 0.52, w * 0.84, h * 0.36)
+	CartoonDraw.draw_outlined_box(self, card_rect, Color("fff8e7"), Color("f0a868"), 4.0, 20.0)
 
 	var st_title := str(summary_data.get("stage_name", "Rhythm Kitchen"))
 	var sc_val := int(summary_data.get("score", 52400))
@@ -294,30 +313,30 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	var counts: Dictionary = summary_data.get("counts", {"Perfect": 26, "Good": 3, "Miss": 1})
 
 	var cx0 := card_rect.position.x + 18.0
-	var cw := int(card_rect.size.x - 36.0)
+	var cw_card := int(card_rect.size.x - 36.0)
 	var row_h := card_rect.size.y / 7.2
 	var ry := card_rect.position.y + row_h * 0.85
 	var h_fs := 18 if is_narrow else 26
 	var r_fs := 14 if is_narrow else 20
 
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), st_title, cw, h_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_CENTER)
-	draw_line(Vector2(cx0, ry + 8.0), Vector2(cx0 + cw, ry + 8.0), Color("f2cfa0"), 2.0)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), st_title, cw_card, h_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_CENTER)
+	draw_line(Vector2(cx0, ry + 8.0), Vector2(cx0 + cw_card, ry + 8.0), Color("f2cfa0"), 2.0)
 
 	ry += row_h
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "SCORE", cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % sc_val, cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "SCORE", cw_card, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % sc_val, cw_card, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw_card, ry + 6.0), Color("f5dec0"), 1.5)
 
 	ry += row_h
 	CartoonDraw.draw_star(self, Vector2(cx0 + 12.0, ry - 6.0), 10.0, 4.5, 5, -PI * 0.5, CartoonDraw.GOLD, CartoonDraw.INK, 2.5)
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0 + 28.0, ry), "BEST", cw - 28, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % best_val, cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0 + 28.0, ry), "BEST", cw_card - 28, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % best_val, cw_card, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw_card, ry + 6.0), Color("f5dec0"), 1.5)
 
 	ry += row_h
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "MAX COMBO", cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
-	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), str(mc_val), cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "MAX COMBO", cw_card, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
+	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), str(mc_val), cw_card, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw_card, ry + 6.0), Color("f5dec0"), 1.5)
 
 	var stat_rows := [
 		["PERFECT", int(counts.get("Perfect", 0)), CartoonDraw.GOLD, CartoonDraw.INK],
@@ -327,5 +346,5 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	for srow in stat_rows:
 		ry += row_h * 0.92
 		CartoonDraw.draw_outlined_circle(self, Vector2(cx0 + 10.0, ry - 6.0), 7.5, srow[2], CartoonDraw.INK, 2.2)
-		CartoonDraw.draw_outlined_text(self, Vector2(cx0 + 26.0, ry), str(srow[0]), cw - 26, r_fs - 2, srow[3], Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
-		CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), str(srow[1]), cw, r_fs - 1, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
+		CartoonDraw.draw_outlined_text(self, Vector2(cx0 + 26.0, ry), str(srow[0]), cw_card - 26, r_fs - 2, srow[3], Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
+		CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), str(srow[1]), cw_card, r_fs - 1, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
