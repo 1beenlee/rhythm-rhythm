@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "status": "specification_only_no_approved_sprite_exports",
+  "render_reference": {
+    "width": 1280,
+    "height": 720,
+    "layout": "landscape reference only; preserve aspect ratio on other devices",
+    "safe_area": "never crop main chef catch hand/ingredient near contact"
+  },
+  "atlas_production": {
+    "pixels_are_source_art_not_enlarged_640x360_crops": true,
+    "transparent_background": true,
+    "export_formats": [
+      "png",
+      "webp"
+    ],
+    "required_fields_per_frame": [
+      "asset_id",
+      "pose_id",
+      "source_sha256",
+      "atlas_rect_px",
+      "trim_rect_px",
+      "pivot_px",
+      "canvas_size_px",
+      "registration_group",
+      "review_status"
+    ],
+    "reject": [
+      "single static pose with filter-only variants",
+      "baked-in text or controller buttons",
+      "visible halo against white or navy",
+      "inconsistent wrist/catch pivot across pose changes",
+      "AI image concept mistaken for finalized sprite atlas",
+      "procedural placeholder circles/rectangles"
+    ]
+  },
+  "chef_pose_ids": [
+    "idle_01",
+    "idle_02",
+    "anticipate_left",
+    "anticipate_right",
+    "catch_left_contact",
+    "catch_right_contact",
+    "recover_01",
+    "miss_01"
+  ],
+  "ingredient_pose_ids": [
+    "tomato_flight",
+    "tomato_contact",
+    "pepper_flight",
+    "pepper_contact",
+    "broccoli_flight",
+    "broccoli_contact"
+  ],
+  "cat_pose_ids": [
+    "cat_idle",
+    "cat_blink",
+    "cat_react"
+  ],
+  "scene_layers": [
+    "backdrop_window_exterior",
+    "kitchen_tiles_shelves",
+    "sink_cat",
+    "foreground_bowls_counter",
+    "refrigerator_props",
+    "underwater_background",
+    "silhouette_treatment"
+  ],
+  "status_by_group": {
+    "chef": "awaiting_real_sprites",
+    "ingredients": "awaiting_real_sprites",
+    "cat": "awaiting_real_sprites",
+    "scene": "awaiting_real_sprites"
+  },
+  "sprite_files": []
+}

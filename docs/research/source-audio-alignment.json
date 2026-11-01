@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "rate_hz": 44100,
+  "source_media_sha256": {
+    "mp4": "8ea44155369633a953a61b2de82c2726ce527dab8d8be0435719303563630e13",
+    "mp3": "c0c47b7816a90f9bd248884f9b479c4b18b429a7cd57c27b938c75fa9d5889dc"
+  },
+  "method": "FFmpeg decode each input to mono 44100Hz; correlate 0.65-second MP4 waveform against +-90ms surrounding MP3, FFT valid correlation",
+  "convention": "positive means MP3 waveform is later than matching content in MP4 audio",
+  "measured_lag_samples": 1105,
+  "measured_lag_s": 0.02505668934240363,
+  "windows": [
+    {
+      "start_s": 10,
+      "r": 0.99872
+    },
+    {
+      "start_s": 20,
+      "r": 0.99895
+    },
+    {
+      "start_s": 40,
+      "r": 0.99835
+    },
+    {
+      "start_s": 65,
+      "r": 0.99915
+    },
+    {
+      "start_s": 85,
+      "r": 0.99841
+    },
+    {
+      "start_s": 105,
+      "r": 0.99901
+    },
+    {
+      "start_s": 125,
+      "r": 0.99979
+    }
+  ],
+  "warnings": [
+    "This is a source-to-source media offset, not input/output device latency",
+    "Container timestamps both start at zero; relative waveform alignment differs due to encoding/priming",
+    "Do not assume waveform beats are the player-input chart",
+    "MP3 includes gameplay SFX and result sequence, not verified clean BGM stem"
+  ]
+}

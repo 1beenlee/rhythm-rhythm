@@ -1,0 +1,25 @@
+# Rhythm々 — project-scoped CCGS-inspired settings (not a full CCGS template install).
+schema_version: 1
+framework:
+  name: claude-code-game-studios
+  source: Donchitos/Claude-Code-Game-Studios
+  version: 1.2.0
+  adoption: scoped-web-adaptation
+project:
+  name: rhythm-rhythm
+  stage: Concept
+  benchmark: miracle-stars-shitagoshirae
+  platform: web-first
+  engine: custom-web-pixijs
+  future_engine: unity
+modes:
+  rigor: minimal
+  automation: guided
+# The stock CCGS setup-engine tool does not configure a custom web engine.
+# Do not add explicit knobs that shadow modes.rigor (review_mode/workflow/docs.density/qa.level/story_granularity/team.size).
+milestone:
+  current: M1
+  gate: approval-required
+source_of_truth:
+  - intent.md
+  - what_to_avoid.md
