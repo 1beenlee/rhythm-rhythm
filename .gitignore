@@ -1,11 +1,14 @@
 .godot/
 .import/
+*.import
+*.uid
 *.tmp
 __pycache__/
 *.pyc
 project.local.yaml
 build/
 dist/
+qa-evidence/
 .env
 .env.*
 !.env.example

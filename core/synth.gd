@@ -44,14 +44,16 @@ static func load_wav_asset(res_path: String, looped: bool = false) -> AudioStrea
 	if ResourceLoader.exists(res_path):
 		var loaded := ResourceLoader.load(res_path)
 		if loaded is AudioStreamWAV:
-			var stream_copy := (loaded as AudioStreamWAV).duplicate() as AudioStreamWAV
+			var wav := loaded as AudioStreamWAV
 			if looped:
-				var bytes_per_frame := 4 if stream_copy.stereo else 2
-				stream_copy.loop_mode = AudioStreamWAV.LOOP_FORWARD
-				stream_copy.loop_begin = 0
-				stream_copy.loop_end = int(stream_copy.data.size() / bytes_per_frame)
-			_wav_cache[cache_key] = stream_copy
-			return stream_copy
+				wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+				wav.loop_begin = 0
+				var total_frames := int(round(wav.get_length() * float(wav.mix_rate)))
+				if total_frames <= 0 and wav.data.size() > 0:
+					total_frames = int(wav.data.size() / (4 if wav.stereo else 2))
+				wav.loop_end = maxi(1, total_frames)
+			_wav_cache[cache_key] = wav
+			return wav
 	return null
 
 static func make_song(game_id: String, bpm: float, duration: float, calls: Array) -> AudioStreamWAV:

@@ -16,8 +16,8 @@
       "game_id": "echo_planet",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 36,
-      "bpm": 96,
+      "duration_sec": 30,
+      "bpm": 100,
       "license": "CC0-1.0 / Original First-Party Procedural Composition (tools/generate_audio_assets.py)"
     },
     {
@@ -33,35 +33,35 @@
       "file": "res://assets/audio/bgm_title.wav",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 8.0,
+      "duration_sec": 32.0,
       "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
     },
     {
       "file": "res://assets/audio/bgm_select.wav",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 8.571,
+      "duration_sec": 34.286,
       "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
     },
     {
       "file": "res://assets/audio/bgm_results_superb.wav",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 7.742,
+      "duration_sec": 32.0,
       "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
     },
     {
       "file": "res://assets/audio/bgm_results_ok.wav",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 9.057,
+      "duration_sec": 35.556,
       "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
     },
     {
       "file": "res://assets/audio/bgm_results_try_again.wav",
       "sample_rate": 44100,
       "channels": 2,
-      "duration_sec": 10.0,
+      "duration_sec": 38.4,
       "license": "CC0-1.0 / Original First-Party BGM Loop (tools/generate_audio_assets.py)"
     },
     {

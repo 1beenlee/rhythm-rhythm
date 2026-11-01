@@ -20,12 +20,17 @@ var preview_sfx: AudioStreamPlayer
 var ui_sfx: AudioStreamPlayer
 var debug_open := false
 var page_name := "home"
+var current_bgm_kind := ""
 var latest_summary: Dictionary = {}
 var eval_seq_id := 0
 
 func _ready() -> void:
 	bgm_player = AudioStreamPlayer.new()
 	add_child(bgm_player)
+	bgm_player.finished.connect(func():
+		if current_bgm_kind != "" and is_instance_valid(bgm_player):
+			bgm_player.play()
+	)
 	preview_sfx = AudioStreamPlayer.new()
 	add_child(preview_sfx)
 	ui_sfx = AudioStreamPlayer.new()
@@ -37,6 +42,7 @@ func _ready() -> void:
 	_home()
 
 func _play_bgm(kind: String) -> void:
+	current_bgm_kind = kind
 	if not is_instance_valid(bgm_player):
 		return
 	if kind == "":
@@ -219,10 +225,11 @@ func _home() -> void:
 	banner.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	page.add_child(banner)
 
-	# Bottom-Center Cream Pill Button: "▶ PRESS START" (Panel 01!)
+	# Bottom-Center Cream Pill Button: "PRESS START" with crisp vector play triangle (Zero Unicode Tofu!)
 	var start_btn := Button.new()
-	start_btn.text = "▶  PRESS START"
+	start_btn.text = "   PRESS START"
 	RhythmTokens.style_button(start_btn, Color("fffdf5"), Vector2(280, 56), 24)
+	CartoonDraw.attach_button_icon(start_btn, "play", CartoonDraw.INK)
 	_wire_button_sfx(start_btn, _select_games)
 	start_btn.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	start_btn.offset_left = -150
@@ -231,7 +238,7 @@ func _home() -> void:
 	start_btn.offset_bottom = -14
 	page.add_child(start_btn)
 
-	# Discreet top-right utility buttons for Timing & Offline
+	# Discreet top-right utility buttons for Timing & Offline with vector icons
 	var util_row := HBoxContainer.new()
 	util_row.add_theme_constant_override("separation", 8)
 	util_row.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -242,14 +249,16 @@ func _home() -> void:
 	page.add_child(util_row)
 
 	var set_btn := Button.new()
-	set_btn.text = "⚙ TIMING"
+	set_btn.text = "    TIMING"
 	RhythmTokens.style_button(set_btn, Color("fffdf5"), Vector2(115, 34), 14)
+	CartoonDraw.attach_button_icon(set_btn, "gear", CartoonDraw.INK)
 	_wire_button_sfx(set_btn, _settings_page)
 	util_row.add_child(set_btn)
 
 	var off_btn := Button.new()
-	off_btn.text = "✈ OFFLINE"
+	off_btn.text = "    OFFLINE"
 	RhythmTokens.style_button(off_btn, Color("fffdf5"), Vector2(115, 34), 14)
+	CartoonDraw.attach_button_icon(off_btn, "plane", CartoonDraw.INK)
 	_wire_button_sfx(off_btn, _offline_page)
 	util_row.add_child(off_btn)
 
@@ -308,15 +317,16 @@ func _select_games() -> void:
 		)
 		holder.add_child(hit_btn)
 
-	# Bottom Pill Bar: "◀ ▶ SELECT    (A) PLAY    (B) BACK" (Panel 02!)
+	# Bottom Pill Bar: "SELECT    (A) PLAY    (B) BACK" with vector arrows (Panel 02!)
 	var bot_row := HBoxContainer.new()
 	bot_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	bot_row.add_theme_constant_override("separation", 12)
 	body.add_child(bot_row)
 
 	var prev_btn := Button.new()
-	prev_btn.text = "◀ ▶ SELECT"
+	prev_btn.text = "     SELECT"
 	RhythmTokens.style_button(prev_btn, Color("fffdf5"), Vector2(130 if is_portrait else 160, 42 if is_portrait else 48), 15 if is_portrait else 18)
+	CartoonDraw.attach_button_icon(prev_btn, "arrows_lr", CartoonDraw.INK)
 	_wire_button_sfx(prev_btn, func(): _focus_card((selected_idx + 1) % games.size()))
 	bot_row.add_child(prev_btn)
 
@@ -350,18 +360,18 @@ func _guide(game: Dictionary) -> void:
 	selected = game
 	_reset_page("guide", 14, Color("f7ecd0"))
 	_play_bgm("select")
-	_heading(str(game["name"]) + " — CHARACTER & RHYTHM GUIDE", str(game["description"]))
+	_heading(str(game["name"]) + " - CHARACTER & RHYTHM GUIDE", str(game["description"]))
 
 	rehearsal_art = StageUIArt.new().setup("rehearsal_stage", str(game["id"]), "SUPERB", bool(profile.get("reduced_motion", false)))
 	rehearsal_art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	rehearsal_art.custom_minimum_size = Vector2(0, 220)
 	body.add_child(rehearsal_art)
 
-	var instruction := "Press SPACE / F / J or Click the stage on the beat to pull the red stamp lever!"
+	var instruction := "Press SPACE / F / J or Click the stage on the beat when each box reaches the Stamp Press!"
 	if str(game["id"]) == "echo_planet":
-		instruction = "1. LISTEN to the Alien's 4-beat phrase (♪ ♪ ♪ ♪)   →   2. ECHO those exact 4 beats back!"
+		instruction = "1. LISTEN to the Alien's Call in the top row  ->  2. ECHO those exact beats in the bottom Star row!"
 	elif str(game["id"]) == "rhythm_kitchen":
-		instruction = "◀ A (or Left Arrow / Left Stage) tosses Green Lettuce!   L ▶ (or Right Arrow / Right Stage) tosses Red Tomatoes!"
+		instruction = "Press A (Left) to catch flying Green Lettuce, and L (Right) to catch flying Red Tomatoes!"
 	_text(instruction, 16, RhythmTokens.INK)
 
 	var action_row := HBoxContainer.new()
@@ -369,22 +379,25 @@ func _guide(game: Dictionary) -> void:
 	body.add_child(action_row)
 
 	var prac_btn := Button.new()
-	prac_btn.text = "♪ TEST SOUND & POSE"
+	prac_btn.text = "   TEST SOUND & POSE"
 	RhythmTokens.style_button(prac_btn, RhythmTokens.YELLOW, Vector2(150, 48), 17)
+	CartoonDraw.attach_button_icon(prac_btn, "music", CartoonDraw.INK)
 	prac_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_wire_button_sfx(prac_btn, _rehearsal_tap)
 	action_row.add_child(prac_btn)
 
 	var start_btn := Button.new()
-	start_btn.text = "★ START STAGE! ▶"
+	start_btn.text = "   START STAGE!"
 	RhythmTokens.style_button(start_btn, RhythmTokens.CORAL, Vector2(170, 48), 19)
+	CartoonDraw.attach_button_icon(start_btn, "star", CartoonDraw.GOLD)
 	start_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_wire_button_sfx(start_btn, _play)
 	action_row.add_child(start_btn)
 
 	var back_sel_btn := Button.new()
-	back_sel_btn.text = "◀ CHOOSE ANOTHER GAME"
+	back_sel_btn.text = "   CHOOSE ANOTHER GAME"
 	RhythmTokens.style_button(back_sel_btn, Color("fffdf5"), Vector2(160, 42), 16)
+	CartoonDraw.attach_button_icon(back_sel_btn, "back", CartoonDraw.INK)
 	_wire_button_sfx(back_sel_btn, _select_games)
 	body.add_child(back_sel_btn)
 
@@ -410,7 +423,6 @@ func _play() -> void:
 	session.finished.connect(_results)
 	session.countdown.connect(_on_countdown)
 
-	# Full-Bleed Cartoon Stage Frame (~96% of viewport!)
 	var frame := PanelContainer.new()
 	frame.add_theme_stylebox_override("panel", RhythmTokens.panel(RhythmTokens.WHITE, 16, 4, RhythmTokens.INK, 2))
 	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -431,7 +443,6 @@ func _play() -> void:
 	visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	visual.configure(selected["_chart"], session, bool(profile["reduced_motion"]))
 
-	# Sleek Pause Button integrated in top-right of the stage HUD banner
 	var pause_btn := Button.new()
 	pause_btn.text = "II" if is_portrait else "II PAUSE"
 	RhythmTokens.style_button(pause_btn, RhythmTokens.YELLOW, Vector2(42 if is_portrait else 84, 34 if is_portrait else 40), 13 if is_portrait else 15)
@@ -443,7 +454,6 @@ func _play() -> void:
 	pause_btn.offset_bottom = 46 if is_portrait else 52
 	stage_holder.add_child(pause_btn)
 
-	# Keep status, countdown_text, and hud nodes valid for regression tests & debug overlay
 	status = Label.new()
 	status.text = "READY?"
 	status.visible = false
@@ -459,7 +469,6 @@ func _play() -> void:
 	hud.visible = debug_open
 	stage_holder.add_child(hud)
 
-	# Pause Modal Overlay
 	pause_modal = _build_pause_modal()
 	pause_modal.visible = false
 	page.add_child(pause_modal)
@@ -494,20 +503,23 @@ func _build_pause_modal() -> Control:
 	vbox.add_child(p_title)
 
 	var res_btn := Button.new()
-	res_btn.text = "▶ RESUME SHOW"
+	res_btn.text = "   RESUME SHOW"
 	RhythmTokens.style_button(res_btn, RhythmTokens.CORAL, Vector2(220, 46), 18)
+	CartoonDraw.attach_button_icon(res_btn, "play", Color.WHITE)
 	_wire_button_sfx(res_btn, _toggle_pause)
 	vbox.add_child(res_btn)
 
 	var rest_btn := Button.new()
-	rest_btn.text = "↻ RESTART TRACK"
+	rest_btn.text = "   RESTART TRACK"
 	RhythmTokens.style_button(rest_btn, RhythmTokens.AQUA, Vector2(220, 44), 17)
+	CartoonDraw.attach_button_icon(rest_btn, "restart", CartoonDraw.INK)
 	_wire_button_sfx(rest_btn, _play)
 	vbox.add_child(rest_btn)
 
 	var exit_btn := Button.new()
-	exit_btn.text = "◀ STAGE SELECT"
+	exit_btn.text = "   STAGE SELECT"
 	RhythmTokens.style_button(exit_btn, RhythmTokens.INK, Vector2(220, 44), 17)
+	CartoonDraw.attach_button_icon(exit_btn, "back", Color.WHITE)
 	_wire_button_sfx(exit_btn, _exit_play)
 	vbox.add_child(exit_btn)
 
@@ -546,7 +558,7 @@ func _update_pause_hint() -> void:
 			countdown_text.text = "PLAY"
 		else:
 			var elapsed := float(Time.get_ticks_usec() - session.countdown_start_usec) / 1000000.0
-			countdown_text.text = str(maxi(0, 3 - int(elapsed)))
+			countdown_text.text = str(maxi(0, 3 - int(elapsed / clampf(60.0 / float(session.chart.get("bpm", 100.0)), 0.40, 1.00))))
 
 func _exit_play() -> void:
 	_dispose_session()
@@ -575,20 +587,18 @@ func _results(summary: Dictionary) -> void:
 	_run_post_stage_sequence(latest_summary, tier)
 
 func _run_post_stage_sequence(summary: Dictionary, tier: String) -> void:
-	# Step 1: 검정화면 (Black Curtain Screen + Drumroll)
 	_reset_page("eval_black", 24, Color("0a0810"))
 	var my_seq := eval_seq_id
 	_play_ui_sfx("eval")
 	_spacer()
 	_text("STAGE COMPLETE", 34, RhythmTokens.YELLOW)
-	_text(str(summary.get("stage_name", "Stage")) + " — Evaluating your groove...", 18, RhythmTokens.WHITE)
+	_text(str(summary.get("stage_name", "Stage")) + " - Evaluating your groove...", 18, RhythmTokens.WHITE)
 	_spacer()
 
 	await get_tree().create_timer(0.55).timeout
 	if my_seq != eval_seq_id or not is_inside_tree():
 		return
 
-	# Step 2: 평가 (Evaluation Spotlight Reveal + Fanfare)
 	_reset_page("eval_reveal", 16, Color("0d0b14"))
 	my_seq = eval_seq_id
 	if is_instance_valid(preview_sfx):
@@ -609,13 +619,12 @@ func _run_post_stage_sequence(summary: Dictionary, tier: String) -> void:
 	eval_art.custom_minimum_size = Vector2(0, 220)
 	body.add_child(eval_art)
 	var tier_col := RhythmTokens.YELLOW if tier == "SUPERB" else (RhythmTokens.AQUA if tier == "OK" else RhythmTokens.CORAL)
-	_text("★  " + tier + "!  ★", 42, tier_col)
+	_text("***  " + tier + "!  ***", 42, tier_col)
 
 	await get_tree().create_timer(0.95).timeout
 	if my_seq != eval_seq_id or not is_inside_tree():
 		return
 
-	# Step 3: 시상 (Full Award / Results Screen — Panel 09!)
 	_show_award_screen(summary, tier)
 
 func _show_award_screen(summary: Dictionary, tier: String = "") -> void:
@@ -636,7 +645,6 @@ func _show_award_screen(summary: Dictionary, tier: String = "") -> void:
 	award_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	page.add_child(award_art)
 
-	# Bottom Action Pill Buttons: "(A) PLAY AGAIN" (Pink) & "(B) STAGE SELECT" (Cream) matching Panel 09!
 	var btn_row := HBoxContainer.new()
 	btn_row.add_theme_constant_override("separation", 16)
 	btn_row.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -713,7 +721,8 @@ func _offline_page() -> void:
 	_text("WINDOWS DESKTOP: Launch RhythmRhythm.exe alongside RhythmRhythm.pck for zero-network native play.", 18)
 	_text("All highscores and timing offsets are saved locally on your device.", 15, RhythmTokens.MUTED)
 	_spacer()
-	_button("◀ BACK TO TITLE", _home, RhythmTokens.INK)
+	var back_btn := _button("   BACK TO TITLE", _home, RhythmTokens.INK)
+	CartoonDraw.attach_button_icon(back_btn, "back", Color.WHITE)
 
 func _dispose_session() -> void:
 	if is_instance_valid(session):

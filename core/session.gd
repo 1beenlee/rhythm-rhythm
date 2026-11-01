@@ -91,14 +91,16 @@ func _process(_delta: float) -> void:
 		return
 	if not active:
 		var elapsed := float(Time.get_ticks_usec() - countdown_start_usec) / 1000000.0
-		var remaining := maxi(0, 3 - int(elapsed))
+		var spb := clampf(60.0 / float(chart.get("bpm", 100.0)), 0.40, 1.00)
+		var beats_elapsed := elapsed / spb
+		var remaining := maxi(0, 3 - int(beats_elapsed))
 		if remaining != last_count:
 			last_count = remaining
 			if remaining > 0 and tone_cache.has("Tick"):
 				sfx.stream = tone_cache["Tick"]
 				sfx.play()
 			countdown.emit(remaining)
-		if elapsed >= 3.0:
+		if beats_elapsed >= 3.0:
 			active = true
 			audio.play()
 			countdown.emit(-1)  # UI leaves READY/GO when the actual track starts.
@@ -189,8 +191,10 @@ func _sound(grade_name: String, lane: String = "") -> void:
 	sfx.play()
 
 func _read_song_time() -> float:
+	if OS.has_feature("web"):
+		return RhythmJudge.corrected_time(audio.get_playback_position(), 0.0, 0.0, int(settings["input_ms"]), int(settings["output_ms"]))
 	var since_mix := clampf(AudioServer.get_time_since_last_mix(), 0.0, 0.050)
-	var out_lat := clampf(AudioServer.get_output_latency(), 0.0, 0.120)
+	var out_lat := clampf(AudioServer.get_output_latency(), 0.0, 0.060)
 	return RhythmJudge.corrected_time(audio.get_playback_position(), since_mix, out_lat, int(settings["input_ms"]), int(settings["output_ms"]))
 
 func _event_time(event: Dictionary) -> float:

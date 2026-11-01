@@ -536,17 +536,74 @@ def sfx_ui_eval(t: float, _d: float) -> float:
 
 
 def build_menu_bgm(kind: str) -> tuple[array.array, array.array, float]:
-    # Seamless 16-beat (4-bar) BGM loops for Title, Stage Select, and Results screens!
+    # Full-length 64-beat (16-bar, 32.0s to 38.4s) multi-section BGM tracks for Title, Stage Select, and Results screens!
     specs = {
-        "title": (120.0, [60, 65, 67, 60], [72, 76, 79, 84, 81, 79, 76, 74, 72, 76, 79, 81, 84, 79, 76, 72]),
-        "select": (112.0, [53, 57, 58, 60], [69, 72, 74, 77, 76, 72, 69, 67, 70, 74, 77, 81, 79, 76, 72, 69]),
-        "results_superb": (124.0, [60, 64, 65, 67], [76, 79, 84, 88, 86, 84, 79, 76, 77, 81, 84, 86, 84, 79, 81, 84]),
-        "results_ok": (106.0, [55, 52, 53, 55], [71, 74, 76, 79, 76, 74, 71, 67, 69, 72, 76, 74, 71, 69, 67, 71]),
-        "results_try_again": (96.0, [57, 53, 55, 52], [69, 72, 71, 69, 65, 69, 67, 64, 69, 72, 74, 72, 71, 69, 67, 64]),
+        "title": (
+            120.0,
+            [60, 65, 67, 60, 60, 62, 64, 67, 65, 64, 62, 60, 57, 62, 67, 60],
+            [
+                # Section A (Bars 1-4): Main Showtime Fanfare Theme
+                72, 76, 79, 84, 81, 79, 76, 74, 72, 76, 79, 81, 84, 79, 76, 72,
+                # Section B (Bars 5-8): Upbeat Groove Call & Response
+                76, 79, 84, 88, 86, 84, 81, 79, 76, 77, 79, 81, 83, 84, 86, 88,
+                # Section C (Bars 9-12): Jazzy Bridge
+                89, 88, 86, 84, 83, 81, 79, 76, 77, 79, 81, 84, 83, 79, 76, 74,
+                # Section D (Bars 13-16): Big Brass Finale Turnaround
+                72, 74, 76, 79, 81, 84, 86, 88, 89, 86, 84, 79, 84, 79, 76, 72,
+            ],
+        ),
+        "select": (
+            112.0,
+            [53, 57, 58, 60, 53, 55, 57, 60, 58, 57, 55, 53, 50, 55, 58, 60],
+            [
+                # Section A (Bars 1-4): Bouncy Marimba Menu Theme
+                69, 72, 74, 77, 76, 72, 69, 67, 70, 74, 77, 81, 79, 76, 72, 69,
+                # Section B (Bars 5-8): playful syncopated climb
+                72, 76, 77, 81, 79, 77, 74, 72, 74, 77, 81, 84, 81, 79, 76, 72,
+                # Section C (Bars 9-12): Warm Rhodes & Bell interlude
+                82, 81, 79, 77, 76, 74, 72, 69, 70, 72, 74, 77, 79, 76, 72, 67,
+                # Section D (Bars 13-16): Turnaround back to top
+                69, 72, 76, 77, 79, 81, 84, 81, 79, 77, 76, 74, 72, 70, 69, 65,
+            ],
+        ),
+        "results_superb": (
+            120.0,
+            [60, 64, 65, 67, 60, 67, 69, 64, 65, 60, 62, 67, 65, 67, 72, 60],
+            [
+                # Section A (Bars 1-4): Triumphant Victory Brass
+                76, 79, 84, 88, 86, 84, 79, 76, 77, 81, 84, 86, 84, 79, 81, 84,
+                # Section B (Bars 5-8): High Celebration Melody
+                88, 91, 88, 84, 86, 89, 86, 81, 84, 88, 91, 93, 91, 88, 86, 84,
+                # Section C (Bars 9-12): Confetti Bell Dance
+                89, 88, 84, 81, 84, 81, 79, 76, 74, 77, 81, 84, 86, 84, 81, 79,
+                # Section D (Bars 13-16): Grand Encore Climax
+                76, 79, 84, 88, 89, 91, 93, 96, 91, 88, 84, 79, 84, 88, 84, 76,
+            ],
+        ),
+        "results_ok": (
+            108.0,
+            [55, 52, 53, 55, 55, 59, 60, 62, 57, 55, 53, 50, 52, 55, 57, 55],
+            [
+                71, 74, 76, 79, 76, 74, 71, 67, 69, 72, 76, 74, 71, 69, 67, 71,
+                74, 76, 79, 83, 81, 79, 76, 74, 72, 76, 79, 81, 79, 76, 74, 71,
+                76, 74, 72, 69, 71, 74, 76, 79, 77, 76, 74, 72, 71, 69, 67, 64,
+                67, 71, 74, 76, 79, 81, 83, 79, 76, 74, 71, 69, 71, 74, 71, 67,
+            ],
+        ),
+        "results_try_again": (
+            100.0,
+            [57, 53, 55, 52, 57, 60, 55, 52, 53, 50, 52, 57, 53, 55, 52, 57],
+            [
+                69, 72, 71, 69, 65, 69, 67, 64, 69, 72, 74, 72, 71, 69, 67, 64,
+                72, 76, 74, 72, 69, 72, 71, 67, 65, 69, 72, 74, 71, 69, 67, 64,
+                76, 74, 72, 69, 67, 65, 64, 62, 64, 67, 69, 72, 71, 69, 67, 64,
+                69, 71, 72, 74, 76, 74, 72, 69, 67, 69, 71, 67, 69, 67, 64, 69,
+            ],
+        ),
     }
     bpm, bass_roots, melody_notes = specs[kind]
     spb = 60.0 / bpm
-    total_beats = 16
+    total_beats = 64
     dur = total_beats * spb
     n = int(round(dur * SAMPLE_RATE))
     left = array.array("f", [0.0] * n)
@@ -555,6 +612,7 @@ def build_menu_bgm(kind: str) -> tuple[array.array, array.array, float]:
     for b in range(total_beats):
         t0 = b * spb
         bar = b // 4
+        section = bar // 4
         beat_in_bar = b % 4
         root = bass_roots[bar % len(bass_roots)]
         mel = melody_notes[b % len(melody_notes)]
@@ -565,18 +623,27 @@ def build_menu_bgm(kind: str) -> tuple[array.array, array.array, float]:
             else:
                 add_note_stereo(left, right, t0, 0.15, lambda t, d: snare_drum(t, d, tight=True), pan=0.04)
             add_note_stereo(left, right, t0 + 0.5 * spb, 0.07, lambda t, d: hihat(t, d, False), pan=0.18)
+            if section in (1, 3) and beat_in_bar in (1, 3):
+                add_note_stereo(left, right, t0 + 0.5 * spb, 0.06, woodblock_tick(880.0, 0.10), pan=-0.22)
+        else:
+            if beat_in_bar == 0:
+                add_note_stereo(left, right, t0, 0.18, kick_drum, pan=0.0)
+            elif beat_in_bar == 2:
+                add_note_stereo(left, right, t0, 0.08, woodblock_tick(523.25, 0.08), pan=0.0)
 
         add_note_stereo(left, right, t0, 0.55 * spb, slap_bass(midi_to_hz(root - 12), 0.52), pan=-0.06)
-        if beat_in_bar == 0:
+        if beat_in_bar in (0, 2):
             chord_hz = [midi_to_hz(root), midi_to_hz(root + 4), midi_to_hz(root + 7), midi_to_hz(root + 11)]
-            add_note_stereo(left, right, t0, 3.6 * spb, epiano_chord(chord_hz, 0.11), pan=-0.12)
+            add_note_stereo(left, right, t0, 1.8 * spb, epiano_chord(chord_hz, 0.11), pan=-0.12)
 
         if kind in ("title", "results_superb"):
             add_note_stereo(left, right, t0, 0.42 * spb, brass_lead(midi_to_hz(mel), 0.14), pan=0.14)
             add_note_stereo(left, right, t0, 0.35 * spb, kitchen_marimba(midi_to_hz(mel + 12), 0.12), pan=-0.14)
+            if section in (1, 3) and b % 2 == 1:
+                add_note_stereo(left, right, t0 + 0.5 * spb, 0.25 * spb, space_bell(midi_to_hz(mel + 7), 0.10), pan=0.22)
         else:
             add_note_stereo(left, right, t0, 0.45 * spb, kitchen_marimba(midi_to_hz(mel), 0.15), pan=0.12)
-            if b % 2 == 0:
+            if b % 2 == 0 or section == 1:
                 add_note_stereo(left, right, t0, 0.40 * spb, space_bell(midi_to_hz(mel + 12), 0.10), pan=-0.15)
 
     return left, right, round(dur, 3)

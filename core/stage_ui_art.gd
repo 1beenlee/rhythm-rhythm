@@ -60,9 +60,8 @@ func _draw() -> void:
 # =============================================================================
 # PANEL 01: TITLE SCREEN ART (01_title.png)
 # =============================================================================
-func _draw_title_screen_art(w: float, h: float, beat: float, bob: float) -> void:
+func _draw_title_screen_art(w: float, h: float, _beat: float, bob: float) -> void:
 	var is_narrow := w < 520.0
-	# 1. Warm Golden-Yellow Sunburst Background (#FFE156 / #FFD034)
 	draw_rect(Rect2(0, 0, w, h), Color("ffe359"))
 	var center := Vector2(w * 0.50, h * 0.36)
 	var max_r := maxf(w, h) * 1.25
@@ -72,7 +71,7 @@ func _draw_title_screen_art(w: float, h: float, beat: float, bob: float) -> void
 			var a1 := float(i + 1) * TAU / 18.0 + (0.0 if reduced_motion else t_anim * 0.08)
 			draw_colored_polygon(PackedVector2Array([center, center + Vector2(cos(a0), sin(a0)) * max_r, center + Vector2(cos(a1), sin(a1)) * max_r]), Color("ffd034"))
 
-	# 2. Scalloped Black Cloud Logo with Thick White Sticker Border (Panel 01!)
+	# Scalloped Black Cloud Logo with Thick White Sticker Border (Panel 01!)
 	var cloud_c := Vector2(w * 0.50, h * 0.31)
 	var cs := 0.72 if is_narrow else 1.0
 	var lobes := [
@@ -81,50 +80,43 @@ func _draw_title_screen_art(w: float, h: float, beat: float, bob: float) -> void
 		Vector2(115.0, 62.0), Vector2(0.0, 72.0), Vector2(-115.0, 62.0),
 	]
 	var lobe_r := [56.0, 62.0, 68.0, 74.0, 62.0, 56.0, 56.0, 64.0, 56.0]
-	# White outer sticker halo
 	for li in range(lobes.size()):
 		draw_circle(cloud_c + lobes[li] * cs, (lobe_r[li] + 10.0) * cs, Color.WHITE)
 	draw_circle(cloud_c, 108.0 * cs, Color.WHITE)
-	# Dark navy-black cloud interior
 	for li in range(lobes.size()):
 		draw_circle(cloud_c + lobes[li] * cs, lobe_r[li] * cs, Color("151423"))
 	draw_circle(cloud_c, 98.0 * cs, Color("151423"))
 
-	# "RHYTHM" (white) + "RHYTHM" (hot-pink) inside the cloud!
 	var fs_main := int(round(52.0 * cs))
 	CartoonDraw.draw_outlined_text(self, cloud_c + Vector2(-210.0 * cs, -14.0 * cs), "RHYTHM", int(420.0 * cs), fs_main, Color.WHITE, Color("151423"), 4.0)
 	CartoonDraw.draw_outlined_text(self, cloud_c + Vector2(-210.0 * cs, 44.0 * cs), "RHYTHM", int(420.0 * cs), fs_main, Color("ff5588"), Color("151423"), 4.0)
 
-	# Purple Pill Sub-Banner: "★ GROOVE SHOW ★" (Panel 01!)
+	# Purple Pill Sub-Banner: "GROOVE SHOW" + Vector 5-Point Stars (Zero Unicode Tofu on Web!)
 	var pill_w := 320.0 * cs
 	var pill_h := 48.0 * cs
 	var pill_rect := Rect2(cloud_c.x - pill_w * 0.5, cloud_c.y + 62.0 * cs, pill_w, pill_h)
 	CartoonDraw.draw_outlined_box(self, pill_rect.grow(5.0 * cs), Color.WHITE, Color.WHITE, 0.0, 26.0 * cs)
 	CartoonDraw.draw_outlined_box(self, pill_rect, Color("8e44ec"), CartoonDraw.INK, 4.2 * cs, 22.0 * cs)
-	CartoonDraw.draw_outlined_text(self, pill_rect.position + Vector2(0, pill_h * 0.70), "★ GROOVE SHOW ★", int(pill_w), int(round(24.0 * cs)), Color.WHITE, Color("4a1c8c"), 2.5)
+	CartoonDraw.draw_outlined_text(self, pill_rect.position + Vector2(0, pill_h * 0.70), "GROOVE SHOW", int(pill_w), int(round(23.0 * cs)), Color.WHITE, Color("4a1c8c"), 2.5)
+	CartoonDraw.draw_star(self, pill_rect.position + Vector2(30.0 * cs, pill_h * 0.50), 11.0 * cs, 4.8 * cs, 5, -PI * 0.5, CartoonDraw.GOLD, Color("4a1c8c"), 2.2 * cs)
+	CartoonDraw.draw_star(self, pill_rect.position + Vector2(pill_w - 30.0 * cs, pill_h * 0.50), 11.0 * cs, 4.8 * cs, 5, -PI * 0.5, CartoonDraw.GOLD, Color("4a1c8c"), 2.2 * cs)
 
-	# Floating Colorful Musical Notes (Pink left, Sky-Blue top-right, Purple mid-right)
+	# Floating Colorful Musical Notes
 	CartoonDraw.draw_music_note(self, Vector2(w * 0.11, h * 0.25 - bob * 0.5), 1.35 * cs, Color("ff5d9e"), CartoonDraw.INK)
 	CartoonDraw.draw_music_note(self, Vector2(w * 0.89, h * 0.17 + bob * 0.5), 1.45 * cs, Color("38b6ff"), CartoonDraw.INK)
 	CartoonDraw.draw_music_note(self, Vector2(w * 0.88, h * 0.53 - bob * 0.4), 1.35 * cs, Color("c84bff"), CartoonDraw.INK)
 
-	# 3. Dark Crowd Silhouettes Along the Bottom + The 4 Cast Characters (Panel 01!)
+	# Dark Crowd Silhouettes Along the Bottom + The 4 Cast Characters
 	var char_s := 0.78 if is_narrow else 1.05
-	# Crowd heads in back
 	for ci in range(11):
 		var cx := w * (0.24 + float(ci) * 0.072)
 		draw_circle(Vector2(cx, h * 0.94), 26.0 * char_s, Color("19172b"))
 
-	# (1) Left: Pink Top-Hat & Tuxedo Show Host
 	CartoonDraw.draw_title_host(self, Vector2(w * 0.19, h * 0.96), char_s * 1.12, -bob * 0.5)
-	# (2) Center-Left: Orange Square TV/Robot Buddy
 	CartoonDraw.draw_orange_tv_buddy(self, Vector2(w * 0.49, h * 0.83 - bob * 0.4), char_s * 1.02)
-	# (3) Center-Right: Echo Planet Sky-Cyan Alien
 	CartoonDraw.draw_echo_alien(self, Vector2(w * 0.68, h * 0.99 - bob * 0.5), char_s * 0.92, "idle", 0, false)
-	# (4) Far Right: Rhythm Kitchen Chef
 	CartoonDraw.draw_kitchen_chef(self, Vector2(w * 0.84, h * 0.97 - bob * 0.4), char_s * 0.95, "idle", 0, false)
 
-	# Foreground crowd silhouette heads along bottom border
 	for fi in range(12):
 		var fx := w * (0.04 + float(fi) * 0.088)
 		var fy := h * (0.97 if (fi >= 3 and fi <= 8) else 0.94)
@@ -147,7 +139,6 @@ func _draw_poster_card(w: float, h: float, bob: float) -> void:
 	var pad := 6.0
 	var outer_rect := Rect2(pad, pad, w - pad * 2.0, h - pad * 2.0)
 
-	# Focused/Selected card gets the bright red outer highlight frame + white inner border (Panel 02 Card 1!)
 	if card_selected:
 		CartoonDraw.draw_outlined_box(self, outer_rect.grow(3.0), Color.WHITE, Color("e63946"), 5.0, 24.0)
 
@@ -170,29 +161,27 @@ func _draw_poster_card(w: float, h: float, bob: float) -> void:
 		CartoonDraw.draw_sticker_text(self, Vector2(outer_rect.position.x + 8.0, outer_rect.position.y + 44.0), line1, int(outer_rect.size.x - 16.0), title_fs, CartoonDraw.INK, Color.WHITE, Color.WHITE, 4.0, 6.0)
 		CartoonDraw.draw_sticker_text(self, Vector2(outer_rect.position.x + 8.0, outer_rect.position.y + 82.0), line2, int(outer_rect.size.x - 16.0), title_fs, CartoonDraw.INK, Color.WHITE, Color.WHITE, 4.0, 6.0)
 
-	# Character & Prop Illustration inside each Card (Panel 02!)
 	var s := minf(w / 240.0, h / 320.0)
 	if is_narrow:
 		s = minf(w / 280.0, h / 110.0)
+	var bottom_limit := outer_rect.end.y - 4.0
 	if game_id == "beat_factory":
-		# Floating 3D isometric cube box on upper-right of card + Worker with red-knob lever on bottom-left!
 		var box_c := Vector2(w * 0.68, h * 0.56)
 		CartoonDraw.draw_outlined_box(self, Rect2(box_c.x - 28.0 * s, box_c.y - 22.0 * s, 56.0 * s, 44.0 * s), Color("f5b968"), CartoonDraw.INK, 3.8 * s, 4.0)
 		draw_circle(box_c + Vector2(-10.0 * s, 2.0 * s), 3.0 * s, CartoonDraw.INK)
 		draw_circle(box_c + Vector2(10.0 * s, 2.0 * s), 3.0 * s, CartoonDraw.INK)
-		CartoonDraw.draw_factory_worker(self, Vector2(w * 0.38, h - 10.0 + bob * 0.3), 1.05 * s, "ready", 0, true)
+		CartoonDraw.draw_factory_worker(self, Vector2(w * 0.38, bottom_limit - 4.0 + bob * 0.2), 1.02 * s, "ready", 0, true)
 	elif game_id == "echo_planet":
-		# Dark indigo starry cosmic blob + Sky-Cyan Alien with glowing yellow antenna!
-		var space_c := Vector2(w * 0.50, h * 0.70)
-		CartoonDraw.draw_outlined_ellipse(self, space_c, w * 0.40, h * 0.24, -0.1, Color("2e2466"), Color("4a3b8c"), 3.0)
+		var space_c := Vector2(w * 0.50, h * 0.66)
+		CartoonDraw.draw_outlined_ellipse(self, space_c, w * 0.38, h * 0.22, -0.1, Color("2e2466"), Color("4a3b8c"), 3.0)
 		CartoonDraw.draw_star(self, space_c + Vector2(-46.0 * s, -28.0 * s), 11.0 * s, 4.5 * s, 4, 0.0, CartoonDraw.GOLD, Color.TRANSPARENT, 0.0)
 		CartoonDraw.draw_star(self, space_c + Vector2(-12.0 * s, -48.0 * s), 9.0 * s, 3.8 * s, 4, 0.0, CartoonDraw.GOLD, Color.TRANSPARENT, 0.0)
-		CartoonDraw.draw_echo_alien(self, Vector2(w * 0.54, h + 12.0 + bob * 0.3), 1.12 * s, "idle", 0, false)
+		# Keep Alien feet strictly above bottom_limit so it never pokes below the card border!
+		CartoonDraw.draw_echo_alien(self, Vector2(w * 0.52, bottom_limit - 2.0 + bob * 0.2), 1.00 * s, "idle", 0, false)
 	else:
-		# Rhythm Kitchen Chef holding dark skillet on left & raising hand!
-		var chef_base := Vector2(w * 0.54, h - 8.0 + bob * 0.3)
-		CartoonDraw.draw_kitchen_chef(self, chef_base, 1.05 * s, "left", 0, false)
-		CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.24, h * 0.78), 32.0 * s, 14.0 * s, 0.2, Color("5c586b"), CartoonDraw.INK, 3.8 * s)
+		var chef_base := Vector2(w * 0.54, bottom_limit - 4.0 + bob * 0.2)
+		CartoonDraw.draw_kitchen_chef(self, chef_base, 1.02 * s, "left", 0, false)
+		CartoonDraw.draw_outlined_ellipse(self, Vector2(w * 0.24, h * 0.76), 32.0 * s, 14.0 * s, 0.2, Color("5c586b"), CartoonDraw.INK, 3.8 * s)
 
 # =============================================================================
 # REHEARSAL STAGE & CHARACTER SHEET PREVIEW (Panels 10, 11, 12)
@@ -205,7 +194,6 @@ func _draw_rehearsal_stage(w: float, h: float, _bob: float) -> void:
 		CartoonDraw.draw_sticker_text(self, badge_c + Vector2(-95.0, 12.0), "PERFECT!", 190, 28, CartoonDraw.HOT_PINK, CartoonDraw.INK, Color.WHITE, 3.5, 6.0)
 
 func _draw_character_sheet(w: float, h: float) -> void:
-	# Renders the exact 4 Action Poses + 6 Face Expressions sheet from Panels 10, 11, 12!
 	var card_rect := Rect2(4.0, 4.0, w - 8.0, h - 8.0)
 	CartoonDraw.draw_outlined_box(self, card_rect, Color("fdf5df"), CartoonDraw.INK, 4.2, 16.0)
 	var div_y := h * 0.64
@@ -243,7 +231,6 @@ func _draw_character_sheet(w: float, h: float) -> void:
 
 		CartoonDraw.draw_outlined_text(self, Vector2(px - 70.0, div_y - 8.0), labels[pi], 140, 14 if is_narrow else 18, CartoonDraw.INK, Color.WHITE, 0.0)
 
-	# Bottom Section: "Face Expressions" + 6 Expression Heads (Panels 10, 11, 12!)
 	CartoonDraw.draw_outlined_text(self, Vector2(28.0, div_y + 24.0), "Face Expressions", 240, 14 if is_narrow else 18, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
 	var face_y := div_y + (h - div_y) * 0.62
 	var fs_head := s * 0.85
@@ -255,7 +242,7 @@ func _draw_character_sheet(w: float, h: float) -> void:
 			CartoonDraw._draw_worker_face(self, fc + Vector2(0, 2.0 * fs_head), fs_head * 0.9, fi)
 		elif game_id == "echo_planet":
 			var ant_col := CartoonDraw.GOLD if fi == 5 else Color("5ce1e6")
-			draw_line(fc + Vector2(0, -24.0 * fs_head), fc + Vector2(0, -38.0 * fs_head), CartoonDraw.INK, 3.5 * fs_head)
+			draw_line(fc + Vector2(0, -24.0 * fs_head), fc + Vector2(0, -38.0 * fs_head), CartoonDraw.INK, 3.5 * fs_head, true)
 			CartoonDraw.draw_outlined_circle(self, fc + Vector2(0, -40.0 * fs_head), 7.5 * fs_head, ant_col, CartoonDraw.INK, 3.0 * fs_head)
 			CartoonDraw.draw_outlined_ellipse(self, fc, 32.0 * fs_head, 26.0 * fs_head, 0.0, Color("82cfe6"), CartoonDraw.INK, 3.8 * fs_head)
 			CartoonDraw.draw_eyes(self, fc + Vector2(0, -2.0 * fs_head), 16.0 * fs_head, 4.0 * fs_head, "squint" if fi == 3 else ("normal" if fi == 4 else "wide"))
@@ -275,7 +262,6 @@ func _draw_character_sheet(w: float, h: float) -> void:
 # =============================================================================
 func _draw_eval_screen(w: float, h: float, bob: float) -> void:
 	draw_rect(Rect2(0, 0, w, h), Color("0d0b14"))
-	# Spotlight cone in center
 	var spot_pts := PackedVector2Array([
 		Vector2(w * 0.50, -20.0),
 		Vector2(w * 0.18, h),
@@ -296,25 +282,19 @@ func _draw_eval_screen(w: float, h: float, bob: float) -> void:
 # =============================================================================
 func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> void:
 	var is_narrow := w < 520.0
-	# 1. Festive Pink & Gold Radial Stage Spotlight Background (Panel 09!)
 	var bg_base := Color("ffa3bf") if grade_tier == "SUPERB" else (Color("9be0d4") if grade_tier == "OK" else Color("b0b5cf"))
 	draw_rect(Rect2(0, 0, w, h), bg_base)
-	# Corner yellow spotlight beams
 	draw_colored_polygon(PackedVector2Array([Vector2(0, 0), Vector2(w * 0.28, 0), Vector2(w * 0.42, h * 0.45), Vector2(0, h * 0.30)]), Color(1.0, 0.90, 0.32, 0.55))
 	draw_colored_polygon(PackedVector2Array([Vector2(w, 0), Vector2(w * 0.72, 0), Vector2(w * 0.58, h * 0.45), Vector2(w, h * 0.30)]), Color(1.0, 0.90, 0.32, 0.55))
-	# Soft golden floor glow under characters
 	CartoonDraw.draw_outlined_ellipse(self, Vector2(w * (0.50 if is_narrow else 0.28), h * 0.88), w * (0.44 if is_narrow else 0.28), h * 0.16, 0.0, Color("ffe270"), Color.TRANSPARENT, 0.0)
 
-	# 2. Top Center Giant Sticker Banner: "SUPERB!" / "OK!" / "TRY AGAIN!" (Panel 09!)
 	var banner_txt := grade_tier + "!"
 	var banner_col := CartoonDraw.GOLD if grade_tier == "SUPERB" else (CartoonDraw.MINT if grade_tier == "OK" else CartoonDraw.CORAL)
 	var banner_fs := 40 if is_narrow else 64
 	var banner_y := h * (0.14 if is_narrow else 0.20)
-	# Draw 3D crimson drop-extrusion + white sticker border
 	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y + 5.0), banner_txt, int(w), banner_fs, Color("d92658"), CartoonDraw.INK, Color.WHITE, 5.0, 10.0)
 	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y), banner_txt, int(w), banner_fs, banner_col, CartoonDraw.INK, Color.WHITE, 4.5, 9.0)
 
-	# 3. Left Half: The 3 Main Characters Cheering Together! (Panel 09!)
 	var trio_cx := w * (0.50 if is_narrow else 0.28)
 	var trio_y := h * (0.48 if is_narrow else 0.78)
 	var ts := (0.62 if is_narrow else 0.96)
@@ -325,14 +305,10 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	var pose_c := "cheer" if grade_tier != "TRY AGAIN" else "idle"
 	var face_c := 1 if grade_tier == "SUPERB" else (0 if grade_tier == "OK" else 5)
 
-	# Center back: Blue Alien
 	CartoonDraw.draw_echo_alien(self, Vector2(trio_cx, trio_y - 36.0 * ts - bob * 0.5), ts * 0.95, pose_a, face_a, true)
-	# Left front: Factory Worker
 	CartoonDraw.draw_factory_worker(self, Vector2(trio_cx - 92.0 * ts, trio_y + 18.0 * ts - bob * 0.4), ts * 0.95, pose_w, face_w, false)
-	# Right front: Kitchen Chef
 	CartoonDraw.draw_kitchen_chef(self, Vector2(trio_cx + 92.0 * ts, trio_y + 22.0 * ts - bob * 0.4), ts * 0.95, pose_c, face_c, false)
 
-	# Black comic excitement lines above the cheering trio (Panel 09!)
 	if grade_tier == "SUPERB":
 		for li in range(3):
 			var lx := trio_cx - 110.0 * ts + float(li) * 22.0 * ts
@@ -340,7 +316,6 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 			var rx := trio_cx + 68.0 * ts + float(li) * 22.0 * ts
 			draw_line(Vector2(rx, trio_y - 140.0 * ts), Vector2(rx + 10.0 * ts, trio_y - 170.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
 
-	# 4. Right Half: Cream Scoreboard Card (Panel 09!)
 	var card_rect := Rect2(w * 0.54, h * 0.21, w * 0.42, h * 0.64)
 	if is_narrow:
 		card_rect = Rect2(w * 0.08, h * 0.52, w * 0.84, h * 0.37)
@@ -362,26 +337,22 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), st_title, cw, h_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_CENTER)
 	draw_line(Vector2(cx0, ry + 8.0), Vector2(cx0 + cw, ry + 8.0), Color("f2cfa0"), 2.0)
 
-	# SCORE
 	ry += row_h
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "SCORE", cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % sc_val, cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
 	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
 
-	# BEST with Crown Icon
 	ry += row_h
-	CartoonDraw.draw_star(self, Vector2(cx0 + 12.0, ry - 6.0), 10.0, 5.0, 5, -PI * 0.5, CartoonDraw.GOLD, CartoonDraw.INK, 2.5)
+	CartoonDraw.draw_star(self, Vector2(cx0 + 12.0, ry - 6.0), 10.0, 4.5, 5, -PI * 0.5, CartoonDraw.GOLD, CartoonDraw.INK, 2.5)
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0 + 28.0, ry), "BEST", cw - 28, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "%06d" % best_val, cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
 	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
 
-	# MAX COMBO
 	ry += row_h
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), "MAX COMBO", cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_LEFT)
 	CartoonDraw.draw_outlined_text(self, Vector2(cx0, ry), str(mc_val), cw, r_fs, CartoonDraw.INK, Color.WHITE, 0.0, HORIZONTAL_ALIGNMENT_RIGHT)
 	draw_line(Vector2(cx0, ry + 6.0), Vector2(cx0 + cw, ry + 6.0), Color("f5dec0"), 1.5)
 
-	# PERFECT / GOOD / MISS with colored circles (Panel 09!)
 	var stat_rows := [
 		["PERFECT", int(counts.get("Perfect", 0)), CartoonDraw.GOLD, CartoonDraw.INK],
 		["GOOD", int(counts.get("Good", 0)), CartoonDraw.SKY_BLUE, CartoonDraw.INK],
