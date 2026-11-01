@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "bpm": 104,
+  "duration": 42,
+  "beats_per_measure": 4,
+  "calls": [],
+  "events": [
+    {
+      "beat": 3.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 7.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 11.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 13.0,
+      "lane": "tap",
+      "action": "press",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 15.0,
+      "lane": "tap",
+      "action": "release",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 19.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 23.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 26.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 27.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 29.0,
+      "lane": "tap",
+      "action": "press",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 31.0,
+      "lane": "tap",
+      "action": "release",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 35.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 39.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 42.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 43.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 45.0,
+      "lane": "tap",
+      "action": "press",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 47.0,
+      "lane": "tap",
+      "action": "release",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 51.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 55.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 58.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 59.0,
+      "lane": "tap",
+      "action": "press"
+    },
+    {
+      "beat": 61.0,
+      "lane": "tap",
+      "action": "press",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 63.0,
+      "lane": "tap",
+      "action": "release",
+      "hold_len": 2.0
+    },
+    {
+      "beat": 67.0,
+      "lane": "tap",
+      "action": "press"
+    }
+  ]
+}

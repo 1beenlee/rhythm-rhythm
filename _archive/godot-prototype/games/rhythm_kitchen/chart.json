@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "bpm": 102,
+  "duration": 42,
+  "beats_per_measure": 4,
+  "calls": [],
+  "events": [
+    {
+      "beat": 3.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 7.0,
+      "lane": "right",
+      "pattern": "single"
+    },
+    {
+      "beat": 11.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 14.5,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 14.75,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 15.0,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 19.0,
+      "lane": "right",
+      "pattern": "single"
+    },
+    {
+      "beat": 23.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 26.5,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 26.75,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 27.0,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 31.0,
+      "lane": "right",
+      "pattern": "single"
+    },
+    {
+      "beat": 35.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 38.5,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 38.75,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 39.0,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 43.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 46.5,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 46.75,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 47.0,
+      "lane": "left",
+      "pattern": "triple"
+    },
+    {
+      "beat": 51.0,
+      "lane": "right",
+      "pattern": "single"
+    },
+    {
+      "beat": 55.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 58.5,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 58.75,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 59.0,
+      "lane": "right",
+      "pattern": "triple"
+    },
+    {
+      "beat": 63.0,
+      "lane": "left",
+      "pattern": "single"
+    },
+    {
+      "beat": 67.0,
+      "lane": "right",
+      "pattern": "single"
+    }
+  ]
+}
