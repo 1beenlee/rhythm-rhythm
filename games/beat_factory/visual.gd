@@ -50,10 +50,9 @@ func _draw() -> void:
 				break
 
 	# 2. Worker Catwalk & Character Sprite
-	var worker_w := 125.0 if is_narrow else 155.0
-	var worker_h := 170.0 if is_narrow else 210.0
-	var worker_x := w * 0.54 - worker_w * 0.5
-	var worker_y := belt_y - 28.0 - worker_h + bob * 0.5
+	var worker_sz := 160.0 if is_narrow else 210.0
+	var worker_x := w * 0.54 - worker_sz * 0.5
+	var worker_y := belt_y - 20.0 - worker_sz + bob * 0.5
 
 	# Frame index: 0=Idle, 1=Ready/Lever Pulled, 2=Hit, 3=Miss
 	var worker_frame := 0
@@ -66,8 +65,8 @@ func _draw() -> void:
 		worker_frame = 1
 
 	if worker_tex:
-		var src_worker := Rect2(float(worker_frame) * 160.0, 0.0, 160.0, 220.0)
-		draw_texture_rect_region(worker_tex, Rect2(worker_x, worker_y, worker_w, worker_h), src_worker)
+		var src_worker := Rect2(float(worker_frame) * 512.0, 0.0, 512.0, 512.0)
+		draw_texture_rect_region(worker_tex, Rect2(worker_x, worker_y, worker_sz, worker_sz), src_worker)
 
 	# 3. Conveyor Belt Track & Boxes Moving Right -> Left
 	_draw_conveyor_boxes(w, belt_y, press_cx, speed_per_beat, beat, counting, is_narrow, is_holding_now)
@@ -200,7 +199,8 @@ func _draw_conveyor_boxes(w: float, belt_y: float, press_cx: float, speed_per_be
 func _draw_box_sprite(bottom_center: Vector2, bw: float, bh: float, frame_idx: int) -> void:
 	var rect := Rect2(bottom_center.x - bw * 0.5, bottom_center.y - bh, bw, bh)
 	if boxes_tex:
-		var src_box := Rect2(float(frame_idx) * 120.0, 0.0, 120.0, 100.0)
+		var frame_clamped := mini(frame_idx, 2)
+		var src_box := Rect2(float(frame_clamped) * 512.0, 0.0, 512.0, 512.0)
 		draw_texture_rect_region(boxes_tex, rect, src_box)
 	else:
 		draw_rect(rect, Color("f6c26b"))

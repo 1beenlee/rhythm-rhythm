@@ -13,6 +13,7 @@ var summary_data: Dictionary = {}
 var bg_title_tex: Texture2D
 var bg_results_tex: Texture2D
 var bg_select_tex: Texture2D
+var trio_celebration_tex: Texture2D
 var worker_tex: Texture2D
 var alien_tex: Texture2D
 var chef_tex: Texture2D
@@ -21,6 +22,7 @@ func _init() -> void:
 	bg_title_tex = load("res://assets/sprites/bg_title.png")
 	bg_results_tex = load("res://assets/sprites/bg_results.png")
 	bg_select_tex = load("res://assets/sprites/bg_select.png")
+	trio_celebration_tex = load("res://assets/sprites/results/trio_celebration.png")
 	worker_tex = load("res://assets/sprites/beat_factory/worker.png")
 	alien_tex = load("res://assets/sprites/echo_planet/alien.png")
 	chef_tex = load("res://assets/sprites/rhythm_kitchen/chef.png")
@@ -83,16 +85,15 @@ func _draw_title_screen_art(w: float, h: float, _beat: float, bob: float) -> voi
 	# Cast characters standing cutely on stage floor
 	var floor_y := h * 0.86
 	var is_narrow := w < 520.0
-	var s := 0.65 if is_narrow else 0.82
-	var cw := 110.0 * s
-	var ch := 150.0 * s
+	var s := 0.70 if is_narrow else 0.95
+	var csz := 140.0 * s
 
 	if worker_tex:
-		draw_texture_rect_region(worker_tex, Rect2(w * 0.22 - cw * 0.5, floor_y - ch + bob * 0.4, cw, ch), Rect2(0, 0, 160.0, 220.0))
+		draw_texture_rect_region(worker_tex, Rect2(w * 0.22 - csz * 0.5, floor_y - csz + bob * 0.4, csz, csz), Rect2(0.0, 0.0, 512.0, 512.0))
 	if alien_tex:
-		draw_texture_rect_region(alien_tex, Rect2(w * 0.38 - cw * 0.5, floor_y - ch * 0.95 - bob * 0.5, cw, ch), Rect2(0, 0, 150.0, 200.0))
+		draw_texture_rect_region(alien_tex, Rect2(w * 0.38 - csz * 0.5, floor_y - csz - bob * 0.5, csz, csz), Rect2(0.0, 0.0, 512.0, 512.0))
 	if chef_tex:
-		draw_texture_rect_region(chef_tex, Rect2(w * 0.62 - cw * 0.5, floor_y - ch + bob * 0.4, cw, ch), Rect2(0, 0, 150.0, 220.0))
+		draw_texture_rect_region(chef_tex, Rect2(w * 0.62 - csz * 0.5, floor_y - csz + bob * 0.4, csz, csz), Rect2(0.0, 0.0, 512.0, 512.0))
 
 # =============================================================================
 # PANEL 02: STAGE SELECT HEADER & PORTRAIT CARDS (02_stage_select.png)
@@ -137,26 +138,21 @@ func _draw_poster_card(w: float, h: float, bob: float) -> void:
 	if is_narrow:
 		s = minf(w / 280.0, h / 110.0)
 	var bottom_limit := outer_rect.end.y - 6.0
+	var csz := 170.0 * s
 	if game_id == "beat_factory":
 		if worker_tex:
-			var cw := 125.0 * s
-			var ch := 170.0 * s
-			var src := Rect2(160.0, 0, 160.0, 220.0) # Ready frame
-			draw_texture_rect_region(worker_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
+			var src := Rect2(512.0, 0.0, 512.0, 512.0) # Ready / Pull frame
+			draw_texture_rect_region(worker_tex, Rect2(w * 0.50 - csz * 0.5, bottom_limit - csz + bob * 0.2, csz, csz), src)
 	elif game_id == "echo_planet":
 		var space_c := Vector2(w * 0.50, h * 0.64)
 		CartoonDraw.draw_outlined_ellipse(self, space_c, w * 0.38, h * 0.22, -0.1, Color("2e2466"), Color("4a3b8c"), 3.0)
 		if alien_tex:
-			var cw := 120.0 * s
-			var ch := 160.0 * s
-			var src := Rect2(0.0, 0, 150.0, 200.0) # Idle frame
-			draw_texture_rect_region(alien_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
+			var src := Rect2(0.0, 0.0, 512.0, 512.0) # Idle frame
+			draw_texture_rect_region(alien_tex, Rect2(w * 0.50 - csz * 0.5, bottom_limit - csz + bob * 0.2, csz, csz), src)
 	else:
 		if chef_tex:
-			var cw := 120.0 * s
-			var ch := 175.0 * s
-			var src := Rect2(150.0, 0, 150.0, 220.0) # Left Pan frame
-			draw_texture_rect_region(chef_tex, Rect2(w * 0.50 - cw * 0.5, bottom_limit - ch + bob * 0.2, cw, ch), src)
+			var src := Rect2(0.0, 0.0, 512.0, 512.0) # Idle frame
+			draw_texture_rect_region(chef_tex, Rect2(w * 0.50 - csz * 0.5, bottom_limit - csz + bob * 0.2, csz, csz), src)
 
 # =============================================================================
 # REHEARSAL STAGE & CHARACTER SHEET PREVIEW (Panels 10, 11, 12)
@@ -244,17 +240,17 @@ func _draw_eval_screen(w: float, h: float, bob: float) -> void:
 	])
 	draw_colored_polygon(spot_pts, Color(1.0, 0.92, 0.55, 0.12))
 	var s := 0.85 if w < 520.0 else 1.15
-	var cw := 140.0 * s
-	var ch := 190.0 * s
-	var crect := Rect2(w * 0.50 - cw * 0.5, h * 0.66 - ch + bob * 0.3, cw, ch)
-	var f_idx := 3 if grade_tier == "SUPERB" else 0
+	var csz := 180.0 * s
+	var crect := Rect2(w * 0.50 - csz * 0.5, h * 0.66 - csz + bob * 0.3, csz, csz)
+	var f_idx := 2 if grade_tier == "SUPERB" else 0 # Frame 2 is Perfect/Cheer, Frame 0 is Idle
 
 	if game_id == "beat_factory" and worker_tex:
-		draw_texture_rect_region(worker_tex, crect, Rect2(float(f_idx) * 160.0, 0, 160.0, 220.0))
+		draw_texture_rect_region(worker_tex, crect, Rect2(float(f_idx) * 512.0, 0.0, 512.0, 512.0))
 	elif game_id == "echo_planet" and alien_tex:
-		draw_texture_rect_region(alien_tex, crect, Rect2(float(f_idx) * 150.0, 0, 150.0, 200.0))
+		draw_texture_rect_region(alien_tex, crect, Rect2(float(f_idx) * 512.0, 0.0, 512.0, 512.0))
 	elif chef_tex:
-		draw_texture_rect_region(chef_tex, crect, Rect2(float(f_idx) * 150.0, 0, 150.0, 220.0))
+		var c_frame := 3 if grade_tier == "SUPERB" else 0
+		draw_texture_rect_region(chef_tex, crect, Rect2(float(c_frame) * 512.0, 0.0, 512.0, 512.0))
 
 # =============================================================================
 # PANEL 09: RESULTS / AWARD SCREEN (09_results_superb.png)
@@ -273,32 +269,19 @@ func _draw_results_award_art(w: float, h: float, _beat: float, bob: float) -> vo
 	var banner_y := h * (0.08 if is_narrow else 0.12)
 	CartoonDraw.draw_sticker_text(self, Vector2(0, banner_y), banner_txt, int(w), banner_fs, banner_col, CartoonDraw.INK, Color.WHITE, 4.5, 9.0)
 
-	# Cheering Character Trio on Left (Worker, Alien, Chef)
-	var trio_cx := w * (0.50 if is_narrow else 0.26)
-	var trio_y := h * (0.48 if is_narrow else 0.82)
-	var ts := (0.68 if is_narrow else 1.0)
-	var cw := 115.0 * ts
-	var ch := 160.0 * ts
+	# High-Resolution Master Cheering Character Trio on Left (Worker, Alien, Chef)
+	var trio_cx := w * (0.50 if is_narrow else 0.28)
+	var trio_y := h * (0.48 if is_narrow else 0.85)
+	var tw := 270.0 if is_narrow else 400.0
+	var th := 175.0 if is_narrow else 260.0 # Exact 800:520 ratio
 
-	if alien_tex:
-		var a_frame := 2 if grade_tier != "TRY AGAIN" else 0
-		var arect := Rect2(trio_cx - cw * 0.5, trio_y - ch * 1.05 - bob * 0.5, cw, ch)
-		draw_texture_rect_region(alien_tex, arect, Rect2(float(a_frame) * 150.0, 0, 150.0, 200.0))
-	if worker_tex:
-		var w_frame := 3 if grade_tier != "TRY AGAIN" else 0
-		var wrect := Rect2(trio_cx - cw * 1.35, trio_y - ch * 0.95 - bob * 0.4, cw, ch)
-		draw_texture_rect_region(worker_tex, wrect, Rect2(float(w_frame) * 160.0, 0, 160.0, 220.0))
-	if chef_tex:
-		var c_frame := 3 if grade_tier != "TRY AGAIN" else 0
-		var crect := Rect2(trio_cx + cw * 0.35, trio_y - ch * 0.95 - bob * 0.4, cw, ch)
-		draw_texture_rect_region(chef_tex, crect, Rect2(float(c_frame) * 150.0, 0, 150.0, 220.0))
-
-	if grade_tier == "SUPERB":
-		for li in range(3):
-			var lx := trio_cx - 100.0 * ts + float(li) * 20.0 * ts
-			draw_line(Vector2(lx, trio_y - 180.0 * ts), Vector2(lx - 12.0 * ts, trio_y - 215.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
-			var rx := trio_cx + 60.0 * ts + float(li) * 20.0 * ts
-			draw_line(Vector2(rx, trio_y - 180.0 * ts), Vector2(rx + 12.0 * ts, trio_y - 215.0 * ts), CartoonDraw.INK, 4.5 * ts, true)
+	if trio_celebration_tex:
+		draw_texture_rect(trio_celebration_tex, Rect2(trio_cx - tw * 0.5, trio_y - th - bob * 0.3, tw, th), false)
+	elif alien_tex and worker_tex and chef_tex:
+		var csz_trio := 120.0
+		draw_texture_rect_region(alien_tex, Rect2(trio_cx - csz_trio * 0.5, trio_y - csz_trio, csz_trio, csz_trio), Rect2(1024.0, 0.0, 512.0, 512.0))
+		draw_texture_rect_region(worker_tex, Rect2(trio_cx - csz_trio * 1.3, trio_y - csz_trio, csz_trio, csz_trio), Rect2(1024.0, 0.0, 512.0, 512.0))
+		draw_texture_rect_region(chef_tex, Rect2(trio_cx + csz_trio * 0.3, trio_y - csz_trio, csz_trio, csz_trio), Rect2(1536.0, 0.0, 512.0, 512.0))
 
 	# Scoreboard Card on Right
 	var card_rect := Rect2(w * 0.52, h * 0.20, w * 0.44, h * 0.62)

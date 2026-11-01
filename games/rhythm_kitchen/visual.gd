@@ -35,11 +35,11 @@ func _draw() -> void:
 	var right_cx := w * 0.78
 
 	# 2. Chef Character in Center
-	# Frames: 0=Idle, 1=Pan Left, 2=Pan Right, 3=Miss
+	# Frames: 0=Idle, 1=Pan Left, 2=Pan Right, 3=Cheer, 4=Miss
 	var chef_frame := 0
 	if react_ratio > 0.0:
 		if last_grade == "Miss":
-			chef_frame = 3
+			chef_frame = 4
 		else:
 			chef_frame = 1 if last_lane == "left" else 2
 	elif ant_l > 0.20:
@@ -47,14 +47,13 @@ func _draw() -> void:
 	elif ant_r > 0.20:
 		chef_frame = 2
 
-	var chef_w := 125.0 if is_narrow else 155.0
-	var chef_h := 170.0 if is_narrow else 210.0
-	var chef_x := w * 0.50 - chef_w * 0.5
-	var chef_y := counter_y - chef_h + 12.0 + bob * 0.4
+	var chef_sz := 160.0 if is_narrow else 210.0
+	var chef_x := w * 0.50 - chef_sz * 0.5
+	var chef_y := counter_y - chef_sz + 16.0 + bob * 0.4
 
 	if chef_tex:
-		var src_chef := Rect2(float(chef_frame) * 150.0, 0.0, 150.0, 220.0)
-		draw_texture_rect_region(chef_tex, Rect2(chef_x, chef_y, chef_w, chef_h), src_chef)
+		var src_chef := Rect2(float(chef_frame) * 512.0, 0.0, 512.0, 512.0)
+		draw_texture_rect_region(chef_tex, Rect2(chef_x, chef_y, chef_sz, chef_sz), src_chef)
 
 	# 3. Flying Cooking Ingredients (Tomato / Lettuce / Trio)
 	_draw_flying_ingredients(w, h, counter_y, left_cx, right_cx, beat, counting, is_narrow)
@@ -118,10 +117,11 @@ func _draw_flying_ingredients(w: float, _h: float, counter_y: float, left_cx: fl
 		var arc_h := 160.0 if is_narrow else 210.0
 		var cur_y := counter_y - 45.0 - (4.0 * arc_h * prog * (1.0 - prog))
 
-		# Frame: 0=tomato, 1=lettuce, 2=trio
-		var f_idx := 2 if pat == "triple" else (0 if lane == "right" else 1)
+		# Frame: 0=Tomato, 1=Lettuce
+		var f_idx := 0 if lane == "right" else 1
+		var item_sz := 56.0 if is_narrow else 72.0
 
 		if ing_tex:
-			var src := Rect2(float(f_idx) * 70.0, 0.0, 70.0, 70.0)
-			var d_rect := Rect2(cur_x - item_size * 0.5, cur_y - item_size * 0.5, item_size, item_size)
+			var src := Rect2(float(f_idx) * 512.0, 0.0, 512.0, 512.0)
+			var d_rect := Rect2(cur_x - item_sz * 0.5, cur_y - item_sz * 0.5, item_sz, item_sz)
 			draw_texture_rect_region(ing_tex, d_rect, src)

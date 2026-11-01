@@ -49,31 +49,29 @@ func _draw() -> void:
 	elif is_response_turn:
 		alien_frame = 0
 
-	var alien_w := 125.0 if is_narrow else 155.0
-	var alien_h := 165.0 if is_narrow else 205.0
-	var alien_x := w * 0.18 - alien_w * 0.5
-	var alien_y := h * 0.88 - alien_h + bob * 0.4
+	var alien_sz := 160.0 if is_narrow else 210.0
+	var alien_x := w * 0.18 - alien_sz * 0.5
+	var alien_y := h * 0.88 - alien_sz + bob * 0.4
 
 	if alien_tex:
-		var src_alien := Rect2(float(alien_frame) * 150.0, 0.0, 150.0, 200.0)
-		draw_texture_rect_region(alien_tex, Rect2(alien_x, alien_y, alien_w, alien_h), src_alien)
+		var src_alien := Rect2(float(alien_frame) * 512.0, 0.0, 512.0, 512.0)
+		draw_texture_rect_region(alien_tex, Rect2(alien_x, alien_y, alien_sz, alien_sz), src_alien)
 
 	# 3. Dual Astronauts (Boy & Girl) on Right
-	# Frames: 0=Listen, 1=Cheer, 2=Miss (Each frame is 260x200)
+	# Frames: 0=Listen, 1=Cheer, 2=Miss (Each frame is 512x512)
 	var astro_frame := 0
 	if react_ratio > 0.0:
 		astro_frame = 2 if last_grade == "Miss" else 1
 	elif is_response_turn:
 		astro_frame = 0
 
-	var astro_w := 180.0 if is_narrow else 235.0
-	var astro_h := 140.0 if is_narrow else 182.0
-	var astro_x := w * 0.78 - astro_w * 0.5
-	var astro_y := h * 0.90 - astro_h + bob * 0.3
+	var astro_sz := 190.0 if is_narrow else 250.0
+	var astro_x := w * 0.78 - astro_sz * 0.5
+	var astro_y := h * 0.90 - astro_sz + bob * 0.3
 
 	if astro_tex:
-		var src_astro := Rect2(float(astro_frame) * 260.0, 0.0, 260.0, 200.0)
-		draw_texture_rect_region(astro_tex, Rect2(astro_x, astro_y, astro_w, astro_h), src_astro)
+		var src_astro := Rect2(float(astro_frame) * 512.0, 0.0, 512.0, 512.0)
+		draw_texture_rect_region(astro_tex, Rect2(astro_x, astro_y, astro_sz, astro_sz), src_astro)
 
 	# 4. Dual Call & Response Rhythm Cue Display (Caller + Receiver together on one screen!)
 	_draw_dual_rhythm_display(w, h, is_narrow, beat, cycle_beat, counting, react_ratio)
@@ -85,7 +83,7 @@ func _draw() -> void:
 		var fb_frame := 2 if last_grade == "Miss" else (0 if last_grade == "Perfect" else 1)
 		if fb_tex:
 			var src_fb := Rect2(float(fb_frame) * 220.0, 0.0, 220.0, 64.0)
-			draw_texture_rect_region(fb_tex, Rect2(astro_x + astro_w * 0.5 - fb_w * 0.5, h * 0.52, fb_w, fb_h), src_fb)
+			draw_texture_rect_region(fb_tex, Rect2(astro_x + astro_sz * 0.5 - fb_w * 0.5, h * 0.52, fb_w, fb_h), src_fb)
 
 	# 6. Top Stage HUD Bar
 	var lit_dots := 0 if (counting or (score_value() == 0 and beat < 4.0)) else (int(floorf(maxf(0.0, beat))) % 4 + 1)
